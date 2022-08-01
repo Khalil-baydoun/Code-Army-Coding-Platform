@@ -1,0 +1,800 @@
+{
+	"info": {
+		"_postman_id": "08532f87-3a70-4072-9a91-e68f5d6818da",
+		"name": "FYP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "AddUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQWRtaW4iLCJlbWFpbCI6ImthYjE4QG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTEyNjY3NCwiZXhwIjoxNjE1MjEzMDc0LCJpYXQiOjE2MTUxMjY2NzQsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.QIP58_N2aNhLQa3kmISD3iZTWC1Rmf-1bRXmT33JbvU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"kab183@mail.aub.edu\",\r\n    \"FirstName\": \"Khalil\",\r\n    \"LastName\": \"Baydoun\",\r\n    \"Role\": 1,\r\n    \"Password\": \"KhalilPass1\",\r\n    \"CourseIds\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNDg4NjY4NSwiZXhwIjoxNjE0OTczMDg1LCJpYXQiOjE2MTQ4ODY2ODUsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.Qk0G4kkeJU9kHXw228aZHPSjo17bKCzTot6o29-IifQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNDg4NjY4NSwiZXhwIjoxNjE0OTczMDg1LCJpYXQiOjE2MTQ4ODY2ODUsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.Qk0G4kkeJU9kHXw228aZHPSjo17bKCzTot6o29-IifQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user/kab182%40mail.aub.edu",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"kab182%40mail.aub.edu"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"kab183@mail.aub.edu\",\r\n    \"Password\": \"KhalilPass1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/authentication/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"authentication",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTEyNjcyOSwiZXhwIjoxNjE1MjEzMTI5LCJpYXQiOjE2MTUxMjY3MjksImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.yKzmCbuZ0Rpar5MnLbWWn4F7Iuki5Cj3oo2uKl4g76A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/authentication/getrole",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"authentication",
+								"getrole"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ProblemSet",
+			"item": [
+				{
+					"name": "Get ProblemSet",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTEyNjcyOSwiZXhwIjoxNjE1MjEzMTI5LCJpYXQiOjE2MTUxMjY3MjksImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.yKzmCbuZ0Rpar5MnLbWWn4F7Iuki5Cj3oo2uKl4g76A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/problemset/7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problemset",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add ProblemSet",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgyQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMxODI0MywiZXhwIjoxNjE1NDA0NjQzLCJpYXQiOjE2MTUzMTgyNDMsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.qZxbIDKKt5HJR5MaJaAHfi8XYB9IRnNn9i7S3ngnHqU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"EECE 331 Lab1\",\r\n    \"ProblemIds\": [],\r\n    \"CourseId\": 1,\r\n    \"Description\" :\"This problem tests if you can add two numbers\",\r\n    \"Prerequisites\":[ \"Implementation\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/problemset",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problemset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Problem To ProblemSet",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTEyNjcyOSwiZXhwIjoxNjE1MjEzMTI5LCJpYXQiOjE2MTUxMjY3MjksImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.yKzmCbuZ0Rpar5MnLbWWn4F7Iuki5Cj3oo2uKl4g76A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ProblemId\": 1,\r\n    \"ProblemSetId\": 7\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/problemset/addproblem",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problemset",
+								"addproblem"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course",
+			"item": [
+				{
+					"name": "Get Course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgyQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMxODI0MywiZXhwIjoxNjE1NDA0NjQzLCJpYXQiOjE2MTUzMTgyNDMsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.qZxbIDKKt5HJR5MaJaAHfi8XYB9IRnNn9i7S3ngnHqU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/course/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"course",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Course",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgyQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMxODI0MywiZXhwIjoxNjE1NDA0NjQzLCJpYXQiOjE2MTUzMTgyNDMsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.qZxbIDKKt5HJR5MaJaAHfi8XYB9IRnNn9i7S3ngnHqU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"EECE 331\",\r\n    \"UsersEmails\": [\"kab183@mail.aub.edu\"],\r\n    \"Description\": \"Algorithms\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/course",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddUserToCourse",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTEyNjcyOSwiZXhwIjoxNjE1MjEzMTI5LCJpYXQiOjE2MTUxMjY3MjksImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.yKzmCbuZ0Rpar5MnLbWWn4F7Iuki5Cj3oo2uKl4g76A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"CourseId\": 10,\r\n    \"UserEmail\": \"kab185@mail.aub.edu\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/course/adduser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"course",
+								"adduser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Problem",
+			"item": [
+				{
+					"name": "Add Problem",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgyQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMxODI0MywiZXhwIjoxNjE1NDA0NjQzLCJpYXQiOjE2MTUzMTgyNDMsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.qZxbIDKKt5HJR5MaJaAHfi8XYB9IRnNn9i7S3ngnHqU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"GeneralDescription\": \"You have to print the value of the addition of the two given numbers a and b\",\r\n    \"IDescription\": \"On the first line you will get the number of testcases t, on the next t lines, you will have on each line you will have the two integers a and b\\r\\n (0 < a < 100 & 0 < b < 100)\",\r\n    \"ODescription\": \"Print t lines, on each one of them, print the value of addition of a and b\",\r\n    \"Difficulty\": 2,\r\n    \"AuthorEmail\": \"kab18@mail.aub.edu\",\r\n    \"Title\": \"Add two numbers\",\r\n    \"Tags\":[ \"Implementation\"],\r\n    \"SampleInput\": \"1\\r\\n2 3\",\r\n    \"SampleOutput\": \"5\",\r\n    \"TimeLimitInMilliseconds\": 2000,\r\n    \"MemoryLimitInKiloBytes\": 200000,\r\n    \"ProblemSetId\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/problem",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problem"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Problem",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMwNjgwNSwiZXhwIjoxNjE1MzkzMjA1LCJpYXQiOjE2MTUzMDY4MDUsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.nZi6A2B2kiXuVsBPide7e2E41fPjj6fwqG-Bp5ZroYo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/problem/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problem",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Problem",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgxQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMwNjgwNSwiZXhwIjoxNjE1MzkzMjA1LCJpYXQiOjE2MTUzMDY4MDUsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.nZi6A2B2kiXuVsBPide7e2E41fPjj6fwqG-Bp5ZroYo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"GeneralDescription\": \"You have to print the value of the subtraction of the two given numbers a and b\",\r\n    \"IDescription\": \"On the first line you will get the number of testcases t, on the next t lines, you will have on each line you will have the two integers a and b\\r\\n (0 < a < 100 & 0 < b < 100)\",\r\n    \"ODescription\": \"Print t lines, on each one of them, print the value of subtraction of a and b\",\r\n    \"Difficulty\": 2,\r\n    \"Title\": \"Subtract two numbers\",\r\n    \"Tags\":[ \"Implementation\"],\r\n    \"SampleInput\": \"1\\r\\n2 3\",\r\n    \"SampleOutput\": \"-1\",\r\n    \"TimeLimitInMilliseconds\": 2000,\r\n    \"MemoryLimitInKiloBytes\": 200000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/problem/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"problem",
+								"5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Submit",
+			"item": [
+				{
+					"name": "Submit Java",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SourceCode\": \"i\",\r\n    \"ProgLanguage\": 0,\r\n    \"ProblemId\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/submission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"submission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Cpp",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SourceCode\": \"#include<iostream> \\r\\nusing namespace std;int main(){int t;cin>>t;while(t--){int a,b;cin>>a>>b;cout<<a+b<<endl;}}\",\r\n    \"ProgLanguage\": 0,\r\n    \"ProblemId\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/submission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"submission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Python",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SourceCode\": \"t= int(input())\\r\\nwhile t>0:\\r\\n\\ta = []\\r\\n\\tp = input()\\r\\n\\tp = p.split()\\r\\n\\tfor i in p:\\r\\n\\t\\t\\ta.append(int(i))\\r\\n\\tprint(a[0] + a[1]);\\r\\n\\tt=t-1;\\r\\n\",\r\n    \"ProgLanguage\": 2,\r\n    \"ProblemId\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/submission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"submission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "uploadTests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiSW5zdHJ1Y3RvciIsImVtYWlsIjoia2FiMTgyQG1haWwuYXViLmVkdSIsIm5iZiI6MTYxNTMxODI0MywiZXhwIjoxNjE1NDA0NjQzLCJpYXQiOjE2MTUzMTgyNDMsImlzcyI6IkF1YkNvZGluZ1BsYXRmb3JtIiwiYXVkIjoiQ29kZXJzIn0.qZxbIDKKt5HJR5MaJaAHfi8XYB9IRnNn9i7S3ngnHqU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Input",
+									"type": "file",
+									"src": "/C:/Users/USER/Desktop/FYP/submission/in.txt"
+								},
+								{
+									"key": "Output",
+									"type": "file",
+									"src": "/C:/Users/USER/Desktop/FYP/submission/out.txt"
+								},
+								{
+									"key": "ProblemId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/test/uploadTests",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"test",
+								"uploadTests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Test",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ProblemId\": \"1\",\r\n    \"Id\":\"1\",\r\n    \"Input\" :\"1 \\r\\n5 5\\r\\n\",\r\n    \"Output\" :\"10\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/test",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/test/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"test",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
