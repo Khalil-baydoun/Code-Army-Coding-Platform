@@ -1,4 +1,3 @@
-
 namespace DataContracts.Authentication
 {
     public class ForbiddenResponse

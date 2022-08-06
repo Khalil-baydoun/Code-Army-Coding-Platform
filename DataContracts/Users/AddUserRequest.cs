@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataContracts.Users
@@ -18,14 +16,11 @@ namespace DataContracts.Users
         [Required]
         public string LastName { get; set; }
         
-        [Required]
-        public int GroupId { get; set; }
-
         public string Salt { get; set; }
 
         public Role? Role { get; set; }
 
-        public List<String> CourseIds { get; set; }
+        public List<string> CourseIds { get; set; }
 
         protected bool Equals(AddUserRequest other)
         {

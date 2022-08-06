@@ -2,11 +2,9 @@ using DataContracts.Authentication;
 using DataContracts.Users;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using WebApi.Exceptions;
 using WebApi.Services.Implementations.Settings;
 using WebApi.Services.Interfaces;
@@ -82,11 +80,6 @@ public class JwtAuthenticationService : IAuthenticationService
         {
             throw new BadRequestException("Email or Password are invalid");
         }
-    }
-
-    private long UnixTimeSeconds()
-    {
-        return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 }
 

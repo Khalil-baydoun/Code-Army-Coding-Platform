@@ -1,14 +1,17 @@
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
     public class ProblemSetEntity
     {
-        public const string TableName = "ProblemSet";
+        public const string TableName = "ProblemSets";
 
+        [Key]
         public int Id { get; set; }
 
+        [MaxLength(100)]
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -17,11 +20,14 @@ namespace SqlMigrations.Entities
 
         public UserEntity Author { get; set; }
 
+        [ForeignKey("Author"), MaxLength(50)]
         public string AuthorEmail { get; set; }
 
         public ICollection<ProblemEntity> Problems { get; set; }
-        public ICollection<DueDateEntity> DueDates { get; set; }
 
+        public DateTime DueDate { get; set; }
+
+        [ForeignKey("Course")]
         public int CourseId { get; set; }
 
         public CourseEntity Course { get; set; }

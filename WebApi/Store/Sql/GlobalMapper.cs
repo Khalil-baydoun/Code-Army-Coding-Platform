@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AutoMapper;
-using DataContracts.Comments;
 using DataContracts.Courses;
-using DataContracts.DueDates;
-using DataContracts.Groups;
 using DataContracts.Problems;
 using DataContracts.ProblemSets;
 using DataContracts.Statistics;
@@ -14,7 +8,6 @@ using DataContracts.Report;
 using DataContracts.Tests;
 using DataContracts.Users;
 using SqlMigrations.Entities;
-using DataContracts.Forbiddens;
 
 public class GlobalMapper
 {
@@ -23,7 +16,7 @@ public class GlobalMapper
     {
         var configuration = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<ProblemSetEntity, ProblemSet>();
+            cfg.CreateMap<ProblemSetEntity, ProblemSet>().ForMember(d => d.Prerequisites, o => o.MapFrom(s => new string[] { s.Prerequisites } )); ;
             cfg.CreateMap<ProblemSet, ProblemSetEntity>();
             cfg.CreateMap<AddProblemSetRequest, ProblemSetEntity>();
             cfg.CreateMap<ProblemEntity, Problem>();
@@ -31,14 +24,16 @@ public class GlobalMapper
             cfg.CreateMap<SubmissionStatisticsEntity, SubmissionStatistics>();
             cfg.CreateMap<UserEntity, User>();
             cfg.CreateMap<User, UserEntity>();
+            cfg.CreateMap<AddUserRequest, GetUserResponse>();
             cfg.CreateMap<CreateProblemRequest, Problem>();
             cfg.CreateMap<AddUserRequest, UserEntity>();
             cfg.CreateMap<TestEntity, TestUnit>();
             cfg.CreateMap<TestUnit, TestEntity>();
             cfg.CreateMap<CourseEntity, Course>().ForMember(x => x.ProblemSets, y => y.Ignore()); ;
             cfg.CreateMap<Course, CourseEntity>();
-            cfg.CreateMap<ProblemSetEntity, ProblemSet>();
-            cfg.CreateMap<ProblemEntity, Problem>();
+            cfg.CreateMap<ProblemEntity, Problem>()
+            .ForMember(d => d.Hints, o => o.MapFrom(s => new string[] { s.Hints }))
+            .ForMember(d => d.Tags, o => o.MapFrom(s => new string[] { s.Tags }));
             cfg.CreateMap<Problem, ProblemEntity>();
             cfg.CreateMap<UpdateProblemRequest, Problem>();
             cfg.CreateMap<UpdateCourseRequest, Course>();
@@ -49,12 +44,6 @@ public class GlobalMapper
             cfg.CreateMap<WaReportEntity, WrongAnswerReport>();
             cfg.CreateMap<ReportEntity, Report>();
             cfg.CreateMap<Report, ReportEntity>();
-            cfg.CreateMap<CommentEntity, Comment>()
-                .ForMember(d => d.AuthorName, o => o.MapFrom(s => s.Author.FirstName + " " + s.Author.LastName));
-            cfg.CreateMap<GroupEntity, Group>();
-            cfg.CreateMap<Group, GroupEntity>();
-            cfg.CreateMap<DueDateEntity, DueDate>();
-            cfg.CreateMap<DueDate, DueDateEntity>();
         });
         _mapper = configuration.CreateMapper();
     }
@@ -62,6 +51,11 @@ public class GlobalMapper
     public UserEntity ToUserEntity(User user)
     {
         return _mapper.Map<UserEntity>(user);
+    }
+
+    public GetUserResponse ToGetUserResponse(AddUserRequest user)
+    {
+        return _mapper.Map<GetUserResponse>(user);
     }
 
     public UserEntity ToUserEntity(AddUserRequest req)
@@ -148,7 +142,7 @@ public class GlobalMapper
 
         var problemSet = _mapper.Map<ProblemSet>(entity);
         problemSet.Id = entity.Id;
-        if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');
+        //if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');//TODO
         problemSet.Problems = entity.Problems.Select(x => ToProblem(x)).ToList();
         return problemSet;
     }
@@ -162,8 +156,8 @@ public class GlobalMapper
 
         var problem = _mapper.Map<Problem>(entity);
         problem.Id = entity.Id;
-        problem.Tags = entity.Tags.Split(',');
-        problem.Hints = entity.Hints.Split(',');
+        //problem.Tags = entity.Tags.Split(',');
+        //problem.Hints = entity.Hints.Split(','); // todo
         return problem;
     }
 
@@ -193,22 +187,13 @@ public class GlobalMapper
 
     public ReportEntity ToReportEntity(Report report)
     {
-        var entity = _mapper.Map<ReportEntity>(report);
-        if (report.StaticCodeAnalysis != null)
-        {
-            entity.StaticCodeAnalysis = String.Join(',', report.StaticCodeAnalysis);
-        }
-        return entity;
+        return _mapper.Map<ReportEntity>(report);
     }
 
     public Report ToReport(ReportEntity entity)
     {
         var report = _mapper.Map<Report>(entity);
-        report.Id = report.Id;
-        if (entity.StaticCodeAnalysis != null)
-        {
-            report.StaticCodeAnalysis = entity.StaticCodeAnalysis.Split(',');
-        }
+        report.Id = entity.Id;
         return report;
     }
 
@@ -245,17 +230,6 @@ public class GlobalMapper
         return solution;
     }
 
-    public Group ToGroup(GroupEntity groupEntity)
-    {
-        var group = _mapper.Map<Group>(groupEntity);
-        return group;
-    }
-
-    public DueDate ToDueDate(DueDateEntity dueDateEntity)
-    {
-        var dueDate = _mapper.Map<DueDate>(dueDateEntity);
-        return dueDate;
-    }
     public WaReportEntity ToWaReportEntity(WrongAnswerReport wrongAnswerReport)
     {
         var report = _mapper.Map<WaReportEntity>(wrongAnswerReport);
@@ -268,28 +242,5 @@ public class GlobalMapper
         var report = _mapper.Map<WrongAnswerReport>(waReportEntity);
 
         return report;
-    }
-
-    private Comment ToComment(CommentEntity entity)
-    {
-        var comment = _mapper.Map<Comment>(entity);
-        comment.AuthorName = entity.Author.FirstName + " " + entity.Author.LastName;
-        return comment;
-    }
-
-    public ForbiddensEntity ToForbiddensEntity(Forbiddens forbiddnes)
-    {
-        var entity = _mapper.Map<ForbiddensEntity>(forbiddnes);
-        return entity;
-    }
-    public Forbiddens ToForbiddens(ForbiddensEntity entity)
-    {
-        if (entity == null)
-        {
-            return null;
-        }
-
-        var forbiddens = _mapper.Map<Forbiddens>(entity);
-        return forbiddens;
     }
 }

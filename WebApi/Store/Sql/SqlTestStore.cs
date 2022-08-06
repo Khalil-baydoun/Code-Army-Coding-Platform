@@ -1,16 +1,7 @@
 using WebApi.Store.Interfaces;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using WebApi.Store.Sql.Dapper;
 using DataContracts.Tests;
-using SqlMigrations.Entities;
-using Dapper;
-using System;
 using WebApi.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
 using SqlMigrations;
 
 namespace WebApi.Store.Sql

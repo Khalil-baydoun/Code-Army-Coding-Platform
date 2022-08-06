@@ -3,12 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
 
     public class WaReportEntity
     {
-        public const string TableName = "WaReport";
+        public const string TableName = "WaReports";
+
+        [Key]
         public int Id { get; set; }
+
+        [ForeignKey("Report")]
+        public int ReportId { get; set; }
 
         public string ActualOutput { get; set; }
 

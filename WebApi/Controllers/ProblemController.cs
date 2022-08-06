@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using DataContracts.Problems;
 using DataContracts.ProblemSets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using webapi.Services.Interfaces;
 using WebApi.Services.Interfaces;
 using DataContracts.Submissions;
-using Microsoft.AspNetCore.Http;
-using System.IO;
 
 namespace WebApi.Controllers
 {
@@ -130,13 +124,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("solution/{problemId}")]
-        public async Task<IActionResult> GetSolution(string problemId, [FromQuery] int ProgLang)
+        public async Task<IActionResult> GetSolution(string problemId, [FromQuery] string progLang)
         {
             if (!_authorizationService.IsAuthorizedToProblem(problemId, User))
             {
                 return Forbid();
             }
-            var solution = await _solutionService.GetSolution(problemId, (ProgrammingLanguage)ProgLang);
+
+            var solution = await _solutionService.GetSolution(problemId, progLang);
             return Ok(solution);
         }
 

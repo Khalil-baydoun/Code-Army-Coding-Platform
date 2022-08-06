@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using DataContracts.Statistics;
 using DataContracts.Submissions;
 using webapi.Services.Interfaces;
@@ -29,12 +26,12 @@ namespace WebApi.Services.Implementations
             upTo.AddDays(1);
             if (groupId != -1)
             {
-                var dueDates = _problemSetService.GetProblemSetDueDates(problemSetId.ToString());
-                var dueDate = dueDates.Where(x => x.groupId == groupId).FirstOrDefault();
-                if (dueDate != null)
-                {
-                    upTo = dueDate.dueDate;
-                }
+                //var dueDates = _problemSetService.GetProblemSetDueDates(problemSetId.ToString());
+                //var dueDate = dueDates.Where(x => x.groupId == groupId).FirstOrDefault();
+                //if (dueDate != null)
+                //{
+                //    upTo = dueDate.dueDate;
+                //}
             }
             return new ProblemStatistics
             {
@@ -77,12 +74,12 @@ namespace WebApi.Services.Implementations
             upTo.AddDays(1);
             if (groupId != -1)
             {
-                var dueDates = _problemSetService.GetProblemSetDueDates(problemSetId.ToString());
-                var dueDate = dueDates.Where(x => x.groupId == groupId).FirstOrDefault();
-                if (dueDate != null)
-                {
-                    upTo = dueDate.dueDate;
-                }
+                //var dueDates = _problemSetService.GetProblemSetDueDates(problemSetId.ToString());
+                //var dueDate = dueDates.Where(x => x.groupId == groupId).FirstOrDefault();
+                //if (dueDate != null)
+                //{
+                //    upTo = dueDate.dueDate;
+                //}
             }
             return new UserProblemSetStatistics
             {

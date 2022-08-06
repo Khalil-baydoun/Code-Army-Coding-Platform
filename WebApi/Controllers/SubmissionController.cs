@@ -17,16 +17,11 @@ namespace webapi.Controllers
     public class SubmissionController : ControllerBase
     {
         private readonly ILogger<SubmissionController> _logger;
-
         private readonly IOnlineJudgeService _judgeSevice;
-
         private readonly IStatisticsService _statisticsService;
-
         private readonly IProblemService _problemService;
         private readonly IReportService _reportService;
-
         private readonly WebApi.Services.Interfaces.IAuthorizationService _authorizationService;
-
         private readonly JudgingQueue _queue;
 
         public SubmissionController(JudgingQueue queue, 
@@ -47,15 +42,17 @@ namespace webapi.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public IActionResult Submit([FromBody] SubmissionRequest submissionRequest)
+        //[Authorize]
+        public async Task<IActionResult> Submit([FromBody] SubmissionRequest submissionRequest)
         {
-            var courseId = _problemService.GetCourseIdOfProblem(submissionRequest.ProblemId);
-            if (!_authorizationService.IsMemberOfCourse(courseId, User))
-            {
-                return Forbid();
-            }
-            _queue.Enqueue(submissionRequest, false, User);
+            //var courseId = _problemService.GetCourseIdOfProblem(submissionRequest.ProblemId);
+            //if (!_authorizationService.IsMemberOfCourse(courseId, User))
+            //{
+            //    return Forbid();
+            //}
+            //_queue.Enqueue(submissionRequest, false, User);
+
+            await _judgeSevice.JudgeCode(submissionRequest);
             return Ok();
         }
 

@@ -1,12 +1,9 @@
-using System;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using DataContracts.Users;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SqlMigrations;
 using SqlMigrations.Entities;
+using Utilities;
 using WebApi.Exceptions;
 using WebApi.Store.Interfaces;
 
@@ -35,11 +32,16 @@ namespace WebApi.Store.Sql
                     var entity = _mapper.ToUserEntity(userReq);
                     db.Users.Add(entity);
                     await db.SaveChangesAsync();
-                    foreach (var courseId in userReq.CourseIds)
+
+                    if (userReq.CourseIds != null)
                     {
-                        db.CourseUsers.Add(new CourseUserEntity { CourseId = Int32.Parse(courseId), UserEmail = userReq.Email });
+                        foreach (var courseId in userReq.CourseIds)
+                        {
+                            db.CourseUsers.Add(new CourseUserEntity { CourseId = Int32.Parse(courseId), UserEmail = userReq.Email });
+                        }
+                        await db.SaveChangesAsync();
                     }
-                    await db.SaveChangesAsync();
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -96,7 +98,7 @@ namespace WebApi.Store.Sql
                     .ToList().FirstOrDefault();
                 if (target != null)
                 {
-                    entity = target;
+                    entity.CopyProperties(target);
                     var success = await db.SaveChangesAsync() > 0;
                     if (!success)
                     {
@@ -106,19 +108,6 @@ namespace WebApi.Store.Sql
                 else
                 {
                     throw new NotFoundException($"User with email {user.Email} was not found");
-                }
-            }
-        }
-        public async Task AddGroup(string groupName)
-        {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                db.Groups.Add(new GroupEntity { Name = groupName });
-                var success = await db.SaveChangesAsync() > 0;
-                if (!success)
-                {
-                    throw new Exception("Could not add group");
                 }
             }
         }

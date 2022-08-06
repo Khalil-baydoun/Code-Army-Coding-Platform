@@ -2,8 +2,11 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SqlMigrations;
+
+#nullable disable
 
 namespace SqlMigrations.Migrations
 {
@@ -14,157 +17,112 @@ namespace SqlMigrations.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.9");
+                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            modelBuilder.Entity("SqlMigrations.Entities.CommentEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AuthorEmail")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Body")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("problemId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorEmail");
-
-                    b.HasIndex("problemId");
-
-                    b.ToTable("Comments");
-                });
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("SqlMigrations.Entities.CourseEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AuthorEmail")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorEmail");
 
-                    b.ToTable("Course");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.CourseUserEntity", b =>
                 {
                     b.Property<int>("CourseId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<string>("UserEmail")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnOrder(0);
 
                     b.HasKey("CourseId", "UserEmail");
 
                     b.HasIndex("UserEmail");
 
-                    b.ToTable("CourseUser");
-                });
-
-            modelBuilder.Entity("SqlMigrations.Entities.DueDateEntity", b =>
-                {
-                    b.Property<int>("groupId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("problemSetId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("dueDate")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("groupId", "problemSetId");
-
-                    b.HasIndex("problemSetId");
-
-                    b.ToTable("DueDates");
-                });
-
-            modelBuilder.Entity("SqlMigrations.Entities.GroupEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Groups");
+                    b.ToTable("CourseUsers");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AuthorEmail")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Difficulty")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<string>("GeneralDescription")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Hints")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IDescription")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("InputDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsPublic")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bit");
 
-                    b.Property<int>("MemoryFactor")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("MemoryLimitInKiloBytes")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ODescription")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("OutputDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProblemSetId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<string>("SampleInput")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SampleOutput")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tags")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TimeFactor")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TimeLimitInMilliseconds")
-                        .HasColumnType("INTEGER");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -172,29 +130,40 @@ namespace SqlMigrations.Migrations
 
                     b.HasIndex("ProblemSetId");
 
-                    b.ToTable("Problem");
+                    b.ToTable("Problems");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemSetEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AuthorEmail")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("CourseId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Prerequisites")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -202,18 +171,26 @@ namespace SqlMigrations.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("ProblemSet");
+                    b.ToTable("ProblemSets");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Property<string>("StaticCodeAnalysis")
-                        .HasColumnType("TEXT");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("SubmissionStatisticsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WaReportId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubmissionStatisticsId");
 
                     b.ToTable("Reports");
                 });
@@ -221,48 +198,56 @@ namespace SqlMigrations.Migrations
             modelBuilder.Entity("SqlMigrations.Entities.SolutionEntity", b =>
                 {
                     b.Property<int>("ProblemId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
-                    b.Property<int>("ProgLanguage")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ProgLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SourceCode")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProblemId");
 
-                    b.ToTable("Solution");
+                    b.ToTable("Solutions");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.SubmissionStatisticsEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<long>("MemoryTakenInKiloBytes")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
 
                     b.Property<int>("ProblemId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
-                    b.Property<int>("ProgrammingLanguage")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ProgrammingLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("TimeTakenInMilliseconds")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("UserEmail")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Verdict")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("sourceCode")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -277,16 +262,20 @@ namespace SqlMigrations.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Input")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Output")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProblemId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -298,69 +287,67 @@ namespace SqlMigrations.Migrations
             modelBuilder.Entity("SqlMigrations.Entities.UserEntity", b =>
                 {
                     b.Property<string>("Email")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Role")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("int")
                         .HasDefaultValue(0);
 
                     b.Property<string>("Salt")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Email");
 
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("users");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.WaReportEntity", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ActualOutput")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExpectedOutput")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Input")
-                        .HasColumnType("TEXT");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WaReport");
-                });
+                    b.HasIndex("ReportId")
+                        .IsUnique();
 
-            modelBuilder.Entity("SqlMigrations.Entities.CommentEntity", b =>
-                {
-                    b.HasOne("SqlMigrations.Entities.UserEntity", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorEmail")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SqlMigrations.Entities.ProblemEntity", "problem")
-                        .WithMany("Comments")
-                        .HasForeignKey("problemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("WaReports");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.CourseEntity", b =>
@@ -368,7 +355,10 @@ namespace SqlMigrations.Migrations
                     b.HasOne("SqlMigrations.Entities.UserEntity", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorEmail")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.CourseUserEntity", b =>
@@ -384,21 +374,10 @@ namespace SqlMigrations.Migrations
                         .HasForeignKey("UserEmail")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("SqlMigrations.Entities.DueDateEntity", b =>
-                {
-                    b.HasOne("SqlMigrations.Entities.GroupEntity", "group")
-                        .WithMany()
-                        .HasForeignKey("groupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Course");
 
-                    b.HasOne("SqlMigrations.Entities.ProblemSetEntity", "problemSet")
-                        .WithMany("DueDates")
-                        .HasForeignKey("problemSetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemEntity", b =>
@@ -406,13 +385,18 @@ namespace SqlMigrations.Migrations
                     b.HasOne("SqlMigrations.Entities.UserEntity", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorEmail")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("SqlMigrations.Entities.ProblemSetEntity", "ProblemSet")
                         .WithMany("Problems")
                         .HasForeignKey("ProblemSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("ProblemSet");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemSetEntity", b =>
@@ -420,22 +404,29 @@ namespace SqlMigrations.Migrations
                     b.HasOne("SqlMigrations.Entities.UserEntity", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorEmail")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("SqlMigrations.Entities.CourseEntity", "Course")
                         .WithMany("ProblemSets")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
                 {
                     b.HasOne("SqlMigrations.Entities.SubmissionStatisticsEntity", "SubmissionStatistics")
-                        .WithOne("Report")
-                        .HasForeignKey("SqlMigrations.Entities.ReportEntity", "Id")
+                        .WithMany()
+                        .HasForeignKey("SubmissionStatisticsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("SubmissionStatistics");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.SolutionEntity", b =>
@@ -445,6 +436,8 @@ namespace SqlMigrations.Migrations
                         .HasForeignKey("SqlMigrations.Entities.SolutionEntity", "ProblemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Problem");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.SubmissionStatisticsEntity", b =>
@@ -458,7 +451,12 @@ namespace SqlMigrations.Migrations
                     b.HasOne("SqlMigrations.Entities.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserEmail")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Problem");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.TestEntity", b =>
@@ -468,24 +466,50 @@ namespace SqlMigrations.Migrations
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("SqlMigrations.Entities.UserEntity", b =>
-                {
-                    b.HasOne("SqlMigrations.Entities.GroupEntity", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                    b.Navigation("Problem");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.WaReportEntity", b =>
                 {
                     b.HasOne("SqlMigrations.Entities.ReportEntity", "Report")
                         .WithOne("WaReport")
-                        .HasForeignKey("SqlMigrations.Entities.WaReportEntity", "Id")
+                        .HasForeignKey("SqlMigrations.Entities.WaReportEntity", "ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Report");
+                });
+
+            modelBuilder.Entity("SqlMigrations.Entities.CourseEntity", b =>
+                {
+                    b.Navigation("CourseUser");
+
+                    b.Navigation("ProblemSets");
+                });
+
+            modelBuilder.Entity("SqlMigrations.Entities.ProblemEntity", b =>
+                {
+                    b.Navigation("Solution")
+                        .IsRequired();
+
+                    b.Navigation("Tests");
+                });
+
+            modelBuilder.Entity("SqlMigrations.Entities.ProblemSetEntity", b =>
+                {
+                    b.Navigation("Problems");
+                });
+
+            modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
+                {
+                    b.Navigation("WaReport")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SqlMigrations.Entities.UserEntity", b =>
+                {
+                    b.Navigation("CourseUser");
                 });
 #pragma warning restore 612, 618
         }

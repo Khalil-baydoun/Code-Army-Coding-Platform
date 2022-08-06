@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 
 namespace DataContracts.Submissions
 {
@@ -8,13 +7,6 @@ namespace DataContracts.Submissions
 
         public string SourceCode { get; set; }
 
-        public ProgrammingLanguage ProgLanguage { get; set; }
+        public string ProgLanguage { get; set; }
     }
-
-    public enum ProgrammingLanguage
-    {
-        Cpp,
-        Java,
-        Python
-    };
 }

@@ -6,6 +6,7 @@ namespace WebApi.Store.Interfaces
     public interface ISolutionStore
     {
         Task<string> AddSolution(SubmissionRequest submissionRequest);
-        Task<string> GetSolution(string problemId, ProgrammingLanguage ProgLang);
+
+        Task<string> GetSolution(string problemId, string ProgLang);
     }
 }

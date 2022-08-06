@@ -1,26 +1,29 @@
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
     public class UserEntity
     {
-        public const string TableName = "users";
+        public const string TableName = "Users";
 
+        [Key, MaxLength(50)]
         public string Email { get; set; }
 
+        [MaxLength(20)]
         public string FirstName { get; set; }
 
+        [MaxLength(20)]
         public string LastName { get; set; }
 
+        [MaxLength(50)]
         public string Password { get; set; }
 
         public string Salt { get; set; }
 
         public int Role { get; set; }
 
-        public ICollection<CourseUserEntity> CourseUser { get; set; }
-        public int GroupId { get; set; }
-        public GroupEntity Group { get; set; }
+        public virtual ICollection<CourseUserEntity> CourseUser { get; set; }
     }
 }

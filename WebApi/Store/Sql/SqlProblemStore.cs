@@ -36,8 +36,6 @@ namespace WebApi.Store.Sql
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var problemEntity = db.Problems
                     .Where(ps => ps.Id == Int32.Parse(problemId))
-                    .Include(p => p.Comments)
-                    .ThenInclude(c => c.Author)
                     .ToList().FirstOrDefault();
 
                 if (problemEntity == null)

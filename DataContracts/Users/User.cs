@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataContracts.Courses;
-using DataContracts.Groups;
-using DataContracts.ProblemSets;
 
 namespace DataContracts.Users
 {
@@ -26,8 +22,6 @@ namespace DataContracts.Users
         public Role? Role { get; set; }
 
         public List<Course> Courses { get; set; }
-        public int GroupId { get; set; }
-        public Group userGroup { get; set; }
 
         protected bool Equals(User other)
         {
@@ -55,7 +49,6 @@ namespace DataContracts.Users
             return hashCode.ToHashCode();
         }
     }
-
 
     public enum Role
     {

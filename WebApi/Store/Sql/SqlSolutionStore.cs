@@ -44,13 +44,13 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public async Task<string> GetSolution(string problemId, ProgrammingLanguage ProgLang)
+        public async Task<string> GetSolution(string problemId, string ProgLang)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var solutionEntity = db.Solutions
-                    .Where(s => s.ProblemId == Int32.Parse(problemId) && s.ProgLanguage == (int)ProgLang)
+                    .Where(s => s.ProblemId == Int32.Parse(problemId) && s.ProgLanguage == ProgLang)
                     .ToList().FirstOrDefault();
 
                 if (solutionEntity == null)

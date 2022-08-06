@@ -82,14 +82,6 @@ namespace WebApi.Controllers
             await _problemSetService.AddProblemToProblemSet(addRequest.ProblemSetId, addRequest.ProblemId);
             return Ok();
         }
-
-        [HttpGet("duedate/{problemSetId}")]
-        [Authorize(Policy = "Admins&Instructors")]
-        public IActionResult GetProblemSetDueDates(string problemSetId)
-        {
-            var dueDates = _problemSetService.GetProblemSetDueDates(problemSetId);
-            return Ok(dueDates);
-        }
     }
 }
 

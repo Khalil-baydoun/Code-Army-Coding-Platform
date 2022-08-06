@@ -3,18 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
 
     public class SolutionEntity
     {
-        [Key, ForeignKey("Problem")]
-        public const string TableName = "Solution";
+        public const string TableName = "Solutions";
 
+        [Key, ForeignKey("Problem")]
         public int ProblemId { get; set; }
 
         public string  SourceCode { get; set; }
 
-        public int ProgLanguage { get; set; }  
+        public string ProgLanguage { get; set; }  
 
         public virtual ProblemEntity Problem { get; set; }   
     }

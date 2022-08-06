@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using DataContracts.Statistics;
 
 namespace DataContracts.Submissions

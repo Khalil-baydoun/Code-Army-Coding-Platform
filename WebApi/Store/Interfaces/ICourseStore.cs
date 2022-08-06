@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DataContracts.Courses;
-using DataContracts.Groups;
-using DataContracts.ProblemSets;
 
 namespace webapi.Store.Interfaces
 {
@@ -23,7 +19,7 @@ namespace webapi.Store.Interfaces
         bool IsMember(string courseId, string userEmail);
 
         Task UpdateCourse(Course course);
+
         Task DeleteCourse(string courseId);
-        List<Group> GetGroups(string courseId);
     }
 }

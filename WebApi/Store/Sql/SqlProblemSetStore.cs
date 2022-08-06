@@ -1,17 +1,10 @@
 using System.Data;
-using System.Linq;
 using DataContracts.ProblemSets;
-using System;
-using SqlMigrations.Entities;
 using webapi.Store.Interfaces;
 using SqlMigrations;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using WebApi.Exceptions;
 using System.Reflection;
-using System.Collections.Generic;
-using DataContracts.DueDates;
 
 namespace WebApi.Store.Sql
 {
@@ -90,7 +83,6 @@ namespace WebApi.Store.Sql
                 var entity = _mapper.ToProblemSetEntity(problemSet);
                 var target = db.ProblemSets
                     .Where(ps => ps.Id == problemSet.Id)
-                    .Include(ps => ps.DueDates)
                     .ToList().FirstOrDefault();
                 if (target != null)
                 {
@@ -157,23 +149,6 @@ namespace WebApi.Store.Sql
                 {
                     throw new Exception("Could not delete problem set");
                 }
-            }
-        }
-
-        public List<DueDate> GetProblemSetDueDates(string problemSetId)
-        {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var dueDates = db.DueDates
-                    .Where(d => d.problemSetId == Int32.Parse(problemSetId))
-                    .Select(d => _mapper.ToDueDate(d))
-                    .ToList();
-                if (dueDates == null)
-                {
-                    throw new NotFoundException($"Problem Set with id {problemSetId} has no due dates");
-                }
-                return dueDates;
             }
         }
     }

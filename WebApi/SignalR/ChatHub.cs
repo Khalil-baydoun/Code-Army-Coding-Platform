@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using DataContracts.Comments;
 using Microsoft.AspNetCore.SignalR;
 using WebApi.Services.Interfaces;

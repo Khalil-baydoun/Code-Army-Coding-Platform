@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using DataContracts.Tests;
-using DataContracts.Users;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -20,15 +12,12 @@ namespace WebApi.Controllers
     public class TestController : ControllerBase
     {
         private readonly ILogger<TestController> _logger;
-
         private readonly ITestService _testService;
-        private readonly IProblemService _problemService;
         private readonly WebApi.Services.Interfaces.IAuthorizationService _authorizationService;
 
         public TestController(WebApi.Services.Interfaces.IAuthorizationService authorizationService, IProblemService problemService, ILogger<TestController> logger, ITestService testService)
         {
             _authorizationService = authorizationService;
-            _problemService = problemService;
             _logger = logger;
             _testService = testService;
         }
@@ -40,6 +29,7 @@ namespace WebApi.Controllers
             {
                 return Forbid();
             }
+
             var tests = _testService.GetTestsOfProblem(problemId);
             return Ok(tests);
         }
@@ -51,6 +41,7 @@ namespace WebApi.Controllers
             {
                 return Forbid();
             }
+
             await _testService.AddTest(test.ProblemId, test);
             return Ok();
         }
@@ -62,6 +53,7 @@ namespace WebApi.Controllers
             {
                 return Forbid();
             }
+
             var tests = await ToTestUnits(uploadTestsRequest);
             _testService.AddTestBatch(tests);
             return Ok();
@@ -74,6 +66,7 @@ namespace WebApi.Controllers
             {
                 return Forbid();
             }
+
             await _testService.DeleteProblemTests(problemId);
             return Ok();
         }
@@ -83,6 +76,7 @@ namespace WebApi.Controllers
             var input = await ReadFileAsync(uploadTestsRequest.Input);
             var output = await ReadFileAsync(uploadTestsRequest.Output);
             var tests = new List<TestUnit>();
+
             for (int i = 0; i < input.Count; i++)
             {
                 tests.Add(new TestUnit
@@ -92,6 +86,7 @@ namespace WebApi.Controllers
                     ProblemId = uploadTestsRequest.ProblemId
                 });
             }
+
             return tests;
         }
 
@@ -123,6 +118,7 @@ namespace WebApi.Controllers
             {
                 result.Add(builder.ToString());
             }
+
             return result;
         }
     }

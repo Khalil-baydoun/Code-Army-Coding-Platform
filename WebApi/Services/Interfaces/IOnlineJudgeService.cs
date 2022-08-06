@@ -5,6 +5,6 @@ namespace webapi.Services.Interfaces
 {
     public interface IOnlineJudgeService
     {
-        SubmissionResponse JudgeCode(SubmissionRequest submissionRequest, bool isSolution = false);
+        public Task<SubmissionResponse> JudgeCode(SubmissionRequest submissionRequest, bool isSolution = false);
     }
 }

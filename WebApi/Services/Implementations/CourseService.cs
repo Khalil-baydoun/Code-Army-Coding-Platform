@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DataContracts.Courses;
-using DataContracts.Groups;
 using webapi.Services.Interfaces;
 using webapi.Store.Interfaces;
 
@@ -58,12 +55,6 @@ namespace WebApi.Services.Implementations
         public async Task DeleteCourse(string courseId)
         {
             await _courseStore.DeleteCourse(courseId);
-        }
-
-        public async Task<List<Group>> GetGroups(string courseId)
-        {
-            var groups = _courseStore.GetGroups(courseId);
-            return groups;
         }
     }
 }

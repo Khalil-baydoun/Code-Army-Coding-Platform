@@ -5,7 +5,7 @@ namespace DataContracts.Submissions
     {
         public IFormFile SourceCode { get; set; }
 
-        public ProgrammingLanguage ProgLanguage { get; set; }
+        public string ProgLanguage { get; set; }
 
         public string ProblemId { get; set; }
     }

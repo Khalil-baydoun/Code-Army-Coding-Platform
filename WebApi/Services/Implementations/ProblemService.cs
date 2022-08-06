@@ -24,7 +24,7 @@ namespace WebApi.Services.Implementations
         private void IsValidProblem(Problem problem)
         {
             if (!(IsValidString(problem.GeneralDescription)
-                 && IsValidString(problem.ODescription)
+                 && IsValidString(problem.OutputDescription)
                  && IsValidString(problem.Title)
                  && IsValidString(problem.SampleInput)
                  && IsValidString(problem.SampleOutput)))
@@ -35,16 +35,6 @@ namespace WebApi.Services.Implementations
             if (problem.GeneralDescription.Length < 20)
             {
                 throw new BadRequestException("Description length should be greater than 20 characters");
-            }
-
-            if (problem.TimeFactor <= 0)
-            {
-                throw new BadRequestException("Time Factor should be positive");
-            }
-
-            if (problem.MemoryFactor <= 0)
-            {
-                throw new BadRequestException("Memory Factor should be positive");
             }
         }
 

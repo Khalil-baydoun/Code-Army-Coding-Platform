@@ -1,10 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using DataContracts.Report;
-using Microsoft.Extensions.DependencyInjection;
 using SqlMigrations;
-using SqlMigrations.Entities;
 using WebApi.Exceptions;
 using WebApi.Store.Interfaces;
 

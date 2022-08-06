@@ -14,6 +14,7 @@ namespace DataContracts.Submissions
         public int TestsPassed { get; set; }
 
         public WrongAnswerReport WaReport { get; set; }
+
         public Report.Report Report {get; set;}
     }
 

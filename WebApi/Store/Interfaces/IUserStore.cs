@@ -14,7 +14,5 @@ namespace WebApi.Store.Interfaces
         Task DeleteUser(string email);
 
         Task UpdateUser(AddUserRequest user);
-        
-        Task AddGroup(string groupName);
     }
 }

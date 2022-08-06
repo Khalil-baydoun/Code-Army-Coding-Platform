@@ -3,16 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
 
     public class ReportEntity
     {
         public const string TableName = "Reports";
+        
+        [Key]
         public int Id { get; set; }
+
+        [ForeignKey("SubmissionStatistics")]
+        public int SubmissionStatisticsId { get; set; }
+
+        [ForeignKey("WaReportId")]
+        public int WaReportId { get; set; }
+
         public virtual SubmissionStatisticsEntity SubmissionStatistics {get; set;}
 
         public virtual WaReportEntity WaReport {get; set;}
-
-        public string StaticCodeAnalysis { get; set; }        
     }
 }

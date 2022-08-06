@@ -18,7 +18,7 @@ using static WebApi.Services.Implementations.GeneralProcessFileManager;
 
 namespace WebApi.Services.Implementations
 {
-    public class OnlineJudgeService : IOnlineJudgeService
+    public class OnlineJudgeService
     {
         private readonly string _submissionsFolderPath = "./submissions/";
         private readonly int _compileTimeLimit = 3000; //3000 milliSeconds
@@ -62,23 +62,23 @@ namespace WebApi.Services.Implementations
             }
             switch (submissionRequest.ProgLanguage)
             {
-                case ProgrammingLanguage.Java:
-                    {
-                        response = RunJavaCode(submissionRequest.SourceCode, inp, isSolution);
-                        break;
-                    }
+                //case ProgrammingLanguage.Java:
+                //    {
+                //        response = RunJavaCode(submissionRequest.SourceCode, inp, isSolution);
+                //        break;
+                //    }
 
-                case ProgrammingLanguage.Cpp:
-                    {
-                        response = RunCppCode(submissionRequest.SourceCode, inp, isSolution);
-                        break;
-                    }
+                //case ProgrammingLanguage.Cpp:
+                //    {
+                //        response = RunCppCode(submissionRequest.SourceCode, inp, isSolution);
+                //        break;
+                //    }
 
-                case ProgrammingLanguage.Python:
-                    {
-                        response = RunPythonCode(submissionRequest.SourceCode, inp, isSolution);
-                        break;
-                    }
+                //case ProgrammingLanguage.Python:
+                //    {
+                //        response = RunPythonCode(submissionRequest.SourceCode, inp, isSolution);
+                //        break;
+                //    }
 
                 default: throw new BadRequestException("Unrecognized Langauge");
             }

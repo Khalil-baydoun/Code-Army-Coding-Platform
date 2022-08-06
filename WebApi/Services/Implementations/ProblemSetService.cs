@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DataContracts.DueDates;
 using DataContracts.ProblemSets;
 using webapi.Services.Interfaces;
 using webapi.Store.Interfaces;
@@ -43,12 +40,6 @@ namespace WebApi.Services.Implementations
         public async Task DeleteProblemSet(string problemSetId)
         {
             await _problemSetStore.DeleteProblemSet(problemSetId);
-        }
-
-        public List<DueDate> GetProblemSetDueDates(string problemSetId)
-        {
-            var dueDates = _problemSetStore.GetProblemSetDueDates(problemSetId);
-            return dueDates;
         }
     }
 }

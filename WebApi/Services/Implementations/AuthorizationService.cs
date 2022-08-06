@@ -1,9 +1,6 @@
 using System.Security.Claims;
-using System.Threading.Tasks;
-using DataContracts.Comments;
 using webapi.Services.Interfaces;
 using WebApi.Services.Interfaces;
-using WebApi.Store.Interfaces;
 
 namespace WebApi.Services.Implementations
 {

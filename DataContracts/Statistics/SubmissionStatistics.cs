@@ -20,6 +20,6 @@ namespace DataContracts.Statistics
 
         public DateTime SubmittedAt { get; set; }
 
-        public int ProgrammingLanguage { get; set; }
+        public string ProgrammingLanguage { get; set; }
     }
 }

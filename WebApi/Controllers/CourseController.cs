@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using DataContracts.Courses;
-using DataContracts.Groups;
-using DataContracts.Tests;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using webapi.Services.Interfaces;
-using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
 {
@@ -98,14 +89,6 @@ namespace WebApi.Controllers
         {
             await _courseService.DeleteCourse(courseId);
             return Ok();
-        }
-
-        [HttpGet("group/{courseId}")]
-        [Authorize(Policy = "Admins&Instructors")]
-        public async Task<IActionResult> GetGroupsInCourse(string courseId)
-        {
-            List<Group> groups = await _courseService.GetGroups(courseId);
-            return Ok(groups);
         }
 
         public static async Task<List<string>> ReadFileAsync(IFormFile file)

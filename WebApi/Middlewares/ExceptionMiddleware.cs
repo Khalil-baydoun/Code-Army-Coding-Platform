@@ -1,14 +1,8 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
+using System.Data.SqlClient;
 using System.Net;
-using System.Threading.Tasks;
 using WebApi.Exceptions;
 
 namespace WebApi.Middlewares
@@ -44,7 +38,8 @@ namespace WebApi.Middlewares
                     _logger.LogError(e, e.Message);
                 }
 
-                else if (e is SqliteException){
+                else if (e is SqlException)
+                {
                     statusCode = (int)HttpStatusCode.BadRequest;
                 }
 

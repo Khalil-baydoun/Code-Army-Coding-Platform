@@ -15,9 +15,9 @@ namespace DataContracts.Problems
 
         public string GeneralDescription { get; set; }
 
-        public string IDescription { get; set; }
+        public string InputDescription { get; set; }
 
-        public string ODescription { get; set; }
+        public string OutputDescription { get; set; }
 
         public string SampleInput { get; set; }
 

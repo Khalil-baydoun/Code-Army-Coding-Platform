@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataContracts.Courses;
-using DataContracts.ProblemSets;
 
 namespace DataContracts.Users
 {
@@ -20,9 +17,10 @@ namespace DataContracts.Users
         public Role? Role { get; set; }
 
         public List<Course> Courses { get; set; }
+
         public List<Course> OwnedCourses { get; set; }
 
-        protected bool Equals(User other)
+        protected bool Equals(GetUserResponse other)
         {
             return Email == other.Email &&
                    FirstName == other.FirstName && LastName == other.LastName && Role == other.Role;
@@ -33,7 +31,7 @@ namespace DataContracts.Users
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((User)obj);
+            return Equals((GetUserResponse)obj);
         }
 
         public override int GetHashCode()

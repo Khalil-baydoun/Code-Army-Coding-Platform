@@ -1,23 +1,22 @@
 ﻿using System.Data;
-using Microsoft.Data.Sqlite;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using webapi.Store.Settings;
 
 namespace WebApi.Store.Sql
 {
     public class SqlConnectionFactory : ISqlConnectionFactory
     {
-        private readonly IOptions<SqlDatabaseSettings> _options;
+        private readonly IOptions<DatabaseConnectionSettings> _options;
 
-        public SqlConnectionFactory(IOptions<SqlDatabaseSettings> options)
+        public SqlConnectionFactory(IOptions<DatabaseConnectionSettings> options)
         {
             _options = options;
         }
         
         public IDbConnection CreateConnection()
         {
-            var con = new SqliteConnection(_options.Value.ConnectionString);
-            
-            return new SqliteConnection(_options.Value.ConnectionString);
+            return new SqlConnection(_options.Value.ConnectionString);
         }
     }
 }

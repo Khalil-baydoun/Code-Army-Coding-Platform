@@ -4,7 +4,7 @@ using System;
 
 namespace DataContracts.Comments
 {
-    public class Comment
+   public class Comment
     {
         public Guid Id { get; set; }
 

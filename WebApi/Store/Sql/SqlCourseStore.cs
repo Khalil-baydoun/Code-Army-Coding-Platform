@@ -1,20 +1,11 @@
 using System.Data;
-using System.Linq;
-using AutoMapper;
 using DataContracts.Courses;
-using System;
 using SqlMigrations.Entities;
 using webapi.Store.Interfaces;
 using SqlMigrations;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using DataContracts.ProblemSets;
-using DataContracts.Problems;
 using WebApi.Exceptions;
 using System.Reflection;
-using DataContracts.Groups;
 
 namespace WebApi.Store.Sql
 {
@@ -38,10 +29,8 @@ namespace WebApi.Store.Sql
                     .Where(ps => ps.Id == Int32.Parse(courseId))
                     .Include(ps => ps.CourseUser)
                     .Include(ps => ps.ProblemSets)
-                    .ThenInclude(ps => ps.DueDates)
                     .Include(ps => ps.ProblemSets)
                     .ThenInclude(ps => ps.Problems)
-                    .ThenInclude(ps => ps.Comments)
                     .ThenInclude(ps => ps.Author)
                     .ToList().FirstOrDefault();
                 if (courseEntity == null)
@@ -210,25 +199,6 @@ namespace WebApi.Store.Sql
                     .First()
                     .CourseUser.Select(x => x.UserEmail)
                     .Contains(userEmail);
-            }
-        }
-
-        public List<Group> GetGroups(string courseId)
-        {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var courseEntity = db.Courses
-                    .Where(ps => ps.Id == Int32.Parse(courseId))
-                    .Include(ps => ps.CourseUser)
-                    .ThenInclude(cu => cu.User)
-                    .ThenInclude(u => u.Group)
-                    .ToList().FirstOrDefault();
-                var groups = courseEntity.CourseUser
-                    .GroupBy(x => x.User.Group)
-                    .Select(x => _mapper.ToGroup(x.Key))
-                    .ToList();
-                return groups;
             }
         }
     }

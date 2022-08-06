@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+
 namespace DataContracts.Tests
 {
     public class UploadTestsRequest

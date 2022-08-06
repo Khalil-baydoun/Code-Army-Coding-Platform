@@ -1,4 +1,3 @@
-
 using DataContracts.Users;
 
 namespace DataContracts.Authentication

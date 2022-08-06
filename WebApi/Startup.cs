@@ -1,9 +1,4 @@
 using WebApi.Store.Sql;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using webapi.Services.Interfaces;
 using WebApi.Services.Implementations;
 using WebApi.Services.Interfaces;
@@ -11,14 +6,15 @@ using WebApi.Store.Interfaces;
 using WebApi.Services.Implementations.Settings;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WebApi.Middlewares;
 using SqlMigrations;
 using webapi.Store.Interfaces;
 using WebApi.SignalR;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using webapi.Store.Settings;
+using webapi.Services.Implementations;
+using System.Text.Json.Serialization;
 
 namespace webapi
 {
@@ -36,7 +32,7 @@ namespace webapi
             services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;
-                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
 
             services.AddCors(opt =>
@@ -50,14 +46,8 @@ namespace webapi
                 });
             });
 
-            services.AddSignalR()
-            .AddJsonProtocol(options =>
-            {
-                options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-            });
-
             services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
-            services.AddSingleton<IOnlineJudgeService, OnlineJudgeService>();
+            services.AddSingleton<IOnlineJudgeService, JobeJudgingService>();
             services.AddSingleton<IProblemStore, SqlProblemStore>();
             services.AddSingleton<IProblemService, ProblemService>();
             services.AddSingleton<ITestStore, SqlTestStore>();
@@ -71,8 +61,6 @@ namespace webapi
             services.AddSingleton<IHashingService, PBKDF2HashingService>();
             services.AddSingleton<IAuthenticationService, JwtAuthenticationService>();
             services.AddSingleton<IAuthorizationService, AuthorizationService>();
-            services.AddSingleton<ICommentService, CommentService>();
-            services.AddSingleton<ICommentStore, SqlCommentStore>();
             services.AddSingleton<IStatisticsService, StatisticsService>();
             services.AddSingleton<IStatisticsStore, SqlStatisticsStore>();
             services.AddSingleton<ISolutionService, SolutionService>();
@@ -80,13 +68,11 @@ namespace webapi
             services.AddSingleton<IWaReportStore, SqlWrongReportStore>();
             services.AddSingleton<IReportStore, SqlReportStore>();
             services.AddSingleton<IReportService, ReportService>();
-            services.Decorate<IOnlineJudgeService, PyLintCodeAnalysis>();
 
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
             services.AddDbContext<DataContext>(opt =>
             {
-                opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-                //opt.UseSqlServer(Configuration.GetConnectionString("CloudConnection"));
+                opt.UseSqlServer(Configuration.GetSection("DatabaseSettings")["ConnectionString"]);
             });
 
             var jwtSettings = Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -113,7 +99,7 @@ namespace webapi
                         {
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                            if (!string.IsNullOrEmpty(accessToken))
                             {
                                 context.Token = accessToken;
                             }
@@ -121,13 +107,14 @@ namespace webapi
                         }
                     };
                 });
+
             services.AddAuthorization(config =>
             {
                 config.AddPolicy("Admins&Instructors", Policies.AdminsAndInstructorsPolicy());
                 config.AddPolicy("Admin", Policies.AdminPolicy());
             });
 
-            services.Configure<SqlDatabaseSettings>(Configuration.GetSection("SqlDatabaseSettings"));
+            services.Configure<DatabaseConnectionSettings>(Configuration.GetSection("DatabaseSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -138,13 +125,9 @@ namespace webapi
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
-
             app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
-
-            //app.UseSignalR(routes => { routes.MapHub<ChatHub>("/chat"); })
 
             app.UseRouting();
 
@@ -155,7 +138,6 @@ namespace webapi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/chat");
             });
         }
     }

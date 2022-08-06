@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading;
 using DataContracts.Statistics;
 using DataContracts.Submissions;
-using Microsoft.Extensions.DependencyInjection;
 using webapi.Services.Interfaces;
 using WebApi.Services.Interfaces;
 using WebApi.Store.Interfaces;
@@ -13,12 +9,10 @@ public class JudgingQueue
 {
 
     IOnlineJudgeService _judgingService;
-
     IStatisticsService _statService;
     IWaReportStore _waReportStore;
     IReportStore _reportStore;
     ISolutionService _solutionService;
-
 
     public JudgingQueue(IStatisticsService statService,
                         IOnlineJudgeService judgingService,
@@ -48,7 +42,7 @@ public class JudgingQueue
                 {
                     ProblemId = Int32.Parse(request.ProblemId),
                     SourceCode = request.SourceCode,
-                    ProgrammingLanguage = (int)request.ProgLanguage,
+                    ProgrammingLanguage = request.ProgLanguage,
                     UserEmail = ((ClaimsIdentity)user.Identity).FindFirst(ClaimTypes.Email).Value,
                     SubmittedAt = DateTime.Now,
                     Verdict = (int)Verdict.InQueue
@@ -82,8 +76,8 @@ public class JudgingQueue
             {
                 Console.WriteLine("Judging Process #" + cnt.ToString());
                 cnt++;
-                SubmissionResponse response = _judgingService.JudgeCode(item.Item1, item.Item2);
-
+                //SubmissionResponse response = _judgingService.JudgeCode(item.Item1, item.Item2);
+                SubmissionResponse response = new SubmissionResponse();
                 if (!item.Item2)
                 {
                     response.Report.Id = item.Item3.Id;
@@ -129,7 +123,7 @@ public class JudgingQueue
             TimeTakenInMilliseconds = resp.TimeTakenInMilliseconds,
             Verdict = (int)resp.Verdict,
             SourceCode = req.SourceCode,
-            ProgrammingLanguage = (int)req.ProgLanguage
+            ProgrammingLanguage = req.ProgLanguage
         };
     }
 }

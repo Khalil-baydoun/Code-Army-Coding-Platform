@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using DataContracts.DueDates;
-
 namespace DataContracts.ProblemSets
 {
     public class AddProblemSetRequest
@@ -17,7 +13,8 @@ namespace DataContracts.ProblemSets
         public string[] Prerequisites { get; set; }
 
         public List<string> ProblemIds { get; set; }
-        public List<DueDate> dueDates { get; set; }
+
+        public DateTime DueDate { get; set; }
 
         public int CourseId { get; set; }
     };

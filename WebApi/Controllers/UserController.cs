@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoMapper;
-using DataContracts.Groups;
 using DataContracts.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,18 +18,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AddUser([FromBody] AddUserRequest userReq)
         {
             await _userService.AddUser(userReq);
-            return Ok();
-        }
-
-        [HttpPost("group/{Name}")]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> CreateGroup(string Name)
-        {
-            await _userService.AddGroup(Name);
             return Ok();
         }
 

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DataContracts.ProblemSets
 {
     public class AddProblemToProblemSetRequest

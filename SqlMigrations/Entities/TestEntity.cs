@@ -1,14 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace SqlMigrations.Entities
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table(TableName)]
+    [Table(TableName)]
     public class TestEntity
     {
         public const string TableName = "Tests";
 
+        [Key]
         public int Id { get; set; }
 
         public ProblemEntity Problem { get; set; }
 
+        [ForeignKey("Problem")]
         public int ProblemId { get; set; }
 
         public string Input { get; set; }

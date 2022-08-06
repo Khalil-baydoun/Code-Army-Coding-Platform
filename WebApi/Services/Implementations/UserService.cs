@@ -1,12 +1,9 @@
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
 using WebApi.Services.Interfaces;
 using WebApi.Store.Interfaces;
 using DataContracts.Users;
-using System;
 using WebApi.Exceptions;
-using System.Collections.Generic;
 
 namespace WebApi.Services.Implementations
 {
@@ -43,16 +40,18 @@ namespace WebApi.Services.Implementations
         public async Task UpdateUser(AddUserRequest user)
         {
             IsValidUserRequest(user);
-            await _userStore.UpdateUser(user);
-        }
 
-        public async Task AddGroup(string groupName)
-        {
-            if (!IsValidString(groupName))
+            if(user.Password != null)
             {
-                throw new BadRequestException($"You need to specify group name");
+                user.Salt = Guid.NewGuid().ToString();
+                user.Password = _hashingService.Hash(user.Password, user.Salt);
             }
-            await _userStore.AddGroup(groupName);
+            else
+            {
+                user.Salt = null;
+            }
+
+            await _userStore.UpdateUser(user);
         }
 
         private static void IsValidUserRequest(AddUserRequest user)
@@ -66,16 +65,12 @@ namespace WebApi.Services.Implementations
 
             else if (!IsValidEmail(user.Email))
             {
-                throw new BadRequestException($"The Email {user.Email} is not a valid AUB Email");
+                throw new BadRequestException($"The Email {user.Email} is not a valid Email");
             }
 
             else if (!IsValidPassword(user.Password))
             {
                 throw new BadRequestException("The Password is not valid, it should contain a number, a capital letter, and has a minimum of 8 characters");
-            }
-            else if (user.GroupId == 0)
-            {
-                throw new BadRequestException($"You need to secify which group the user belong to");
             }
         }
 
@@ -83,13 +78,7 @@ namespace WebApi.Services.Implementations
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
             var emailValidator = new EmailAddressAttribute();
-            bool isValid = emailValidator.IsValid(email);
-            var emailParts = email.Split('@');
-            if (emailParts.Length != 2 || !emailParts[1].StartsWith("mail.aub.edu"))
-            {
-                isValid = false;
-            }
-            return isValid;
+            return emailValidator.IsValid(email);
         }
 
         public static bool IsValidPassword(string plainText)
@@ -109,6 +98,5 @@ namespace WebApi.Services.Implementations
         {
             return !string.IsNullOrWhiteSpace(value);
         }
-
     }
 }

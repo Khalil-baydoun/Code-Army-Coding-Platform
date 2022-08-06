@@ -130,7 +130,6 @@ namespace WebApi.Store.Sql
                     problemId == ps.ProblemId && 
                     ps.SubmittedAt < upTo)
                     .Include(ps => ps.User)
-                    .Where(ps => (groupId == -1 || ps.User.GroupId == groupId))
                     .Count();
             }
         }
@@ -146,7 +145,6 @@ namespace WebApi.Store.Sql
                     problemId == ps.ProblemId && 
                     ps.SubmittedAt < upTo)
                     .Include(ps => ps.User)
-                    .Where(ps => (groupId == -1 || ps.User.GroupId == groupId))
                     .Select(ps => ps.UserEmail)
                     .Distinct().Count();
             }
@@ -162,7 +160,6 @@ namespace WebApi.Store.Sql
                     problemId == ps.ProblemId &&
                     ps.SubmittedAt < upTo)
                     .Include(ps => ps.User)
-                    .Where(ps => (groupId == -1 || ps.User.GroupId == groupId))
                     .Select(ps => ps.Verdict).ToList();
                 return verdicts;
             }
@@ -193,7 +190,6 @@ namespace WebApi.Store.Sql
                     userEmail.Equals(ps.UserEmail) &&
                     ps.SubmittedAt < upTo)
                     .Include(ps => ps.User)
-                    .Where(ps => (groupId == -1 || ps.User.GroupId == groupId))
                     .Select(ps => ps.ProblemId)
                     .Distinct().ToList();
                 return ids;

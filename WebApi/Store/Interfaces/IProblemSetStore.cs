@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DataContracts.DueDates;
 using DataContracts.ProblemSets;
 
 namespace webapi.Store.Interfaces
@@ -18,7 +15,5 @@ namespace webapi.Store.Interfaces
         Task UpdateProblemSet(ProblemSet problemSet);
 
         Task DeleteProblemSet(string problemSetId);
-
-        List<DueDate> GetProblemSetDueDates(string problemSetId);
     }
 }
