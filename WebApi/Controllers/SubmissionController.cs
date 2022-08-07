@@ -1,12 +1,9 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using DataContracts.Statistics;
+﻿using System.Security.Claims;
 using DataContracts.Submissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using webapi.Services.Interfaces;
+using Webapi.JudgingQueue;
 using WebApi.Services.Interfaces;
 using WebApi.Store.Interfaces;
 
@@ -17,42 +14,38 @@ namespace webapi.Controllers
     public class SubmissionController : ControllerBase
     {
         private readonly ILogger<SubmissionController> _logger;
-        private readonly IOnlineJudgeService _judgeSevice;
         private readonly IStatisticsService _statisticsService;
-        private readonly IProblemService _problemService;
-        private readonly IReportService _reportService;
+        private readonly IWaReportService _reportService;
         private readonly WebApi.Services.Interfaces.IAuthorizationService _authorizationService;
-        private readonly JudgingQueue _queue;
+        private readonly ISubmissionQueue _queue;
 
-        public SubmissionController(JudgingQueue queue, 
-            WebApi.Services.Interfaces.IAuthorizationService authorizationService, 
-            IProblemService problemService, 
-            IStatisticsService statisticsService, 
-            ILogger<SubmissionController> logger, 
-            IOnlineJudgeService judgeSevice,
-            IReportService reportService)
+        public SubmissionController(
+            ISubmissionQueue queue,
+            WebApi.Services.Interfaces.IAuthorizationService authorizationService,
+            IStatisticsService statisticsService,
+            ILogger<SubmissionController> logger,
+            IWaReportService reportService)
         {
             _queue = queue;
             _authorizationService = authorizationService;
-            _problemService = problemService;
             _statisticsService = statisticsService;
             _logger = logger;
-            _judgeSevice = judgeSevice;
             _reportService = reportService;
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Submit([FromBody] SubmissionRequest submissionRequest)
         {
-            //var courseId = _problemService.GetCourseIdOfProblem(submissionRequest.ProblemId);
-            //if (!_authorizationService.IsMemberOfCourse(courseId, User))
-            //{
-            //    return Forbid();
-            //}
-            //_queue.Enqueue(submissionRequest, false, User);
+            if (!await _authorizationService.CanSubmit(submissionRequest.ProblemId, User))
+            {
+                return Forbid();
+            }
 
-            await _judgeSevice.JudgeCode(submissionRequest);
+            submissionRequest.IsSolution = false;
+            submissionRequest.UserEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+
+            await _queue.EnqueueSubmission(submissionRequest);
             return Ok();
         }
 

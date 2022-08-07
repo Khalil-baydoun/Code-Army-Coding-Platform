@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DataContracts.Problems;
 
 namespace WebApi.Services.Interfaces
@@ -10,13 +8,16 @@ namespace WebApi.Services.Interfaces
 
         Task<string> AddProblem(Problem problem);
 
-        List<Problem> GetProblems();
+        List<Problem> GetProblems(string userEmail);
+
+        List<Problem> GetPublicProblems();
 
         Task UpdateProblem(Problem problem);
 
-        bool IsOwner(string problemId, string userEmail);
+        Task<bool> IsOwner(string problemId, string userEmail);
+
+        Task<bool> CanSubmit(string problemId, string userEmail);
 
         Task DeleteProblem(string problemId);
-        string GetCourseIdOfProblem(string problemId);
     }
 }

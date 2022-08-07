@@ -100,12 +100,12 @@ namespace SqlMigrations.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
+                    b.Property<int>("MemoryLimitInKiloBytes")
+                        .HasColumnType("int");
+
                     b.Property<string>("OutputDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProblemSetId")
-                        .HasColumnType("int");
 
                     b.Property<string>("SampleInput")
                         .IsRequired()
@@ -119,6 +119,9 @@ namespace SqlMigrations.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TimeLimitInMilliseconds")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -127,8 +130,6 @@ namespace SqlMigrations.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorEmail");
-
-                    b.HasIndex("ProblemSetId");
 
                     b.ToTable("Problems");
                 });
@@ -174,25 +175,21 @@ namespace SqlMigrations.Migrations
                     b.ToTable("ProblemSets");
                 });
 
-            modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
+            modelBuilder.Entity("SqlMigrations.Entities.ProblemSetProblemEntity", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<int>("ProblemSetId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
-                    b.Property<int>("SubmissionStatisticsId")
-                        .HasColumnType("int");
+                    b.HasKey("ProblemId", "ProblemSetId");
 
-                    b.Property<int>("WaReportId")
-                        .HasColumnType("int");
+                    b.HasIndex("ProblemSetId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubmissionStatisticsId");
-
-                    b.ToTable("Reports");
+                    b.ToTable("ProblemSetProblem");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.SolutionEntity", b =>
@@ -221,9 +218,6 @@ namespace SqlMigrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<long>("MemoryTakenInKiloBytes")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("ProblemId")
                         .HasColumnType("int");
 
@@ -237,9 +231,6 @@ namespace SqlMigrations.Migrations
 
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<long>("TimeTakenInMilliseconds")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
@@ -321,11 +312,11 @@ namespace SqlMigrations.Migrations
 
             modelBuilder.Entity("SqlMigrations.Entities.WaReportEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("SubmissionStatisticsId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionStatisticsId"), 1L, 1);
 
                     b.Property<string>("ActualOutput")
                         .IsRequired()
@@ -339,13 +330,7 @@ namespace SqlMigrations.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ReportId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReportId")
-                        .IsUnique();
+                    b.HasKey("SubmissionStatisticsId");
 
                     b.ToTable("WaReports");
                 });
@@ -388,15 +373,7 @@ namespace SqlMigrations.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("SqlMigrations.Entities.ProblemSetEntity", "ProblemSet")
-                        .WithMany("Problems")
-                        .HasForeignKey("ProblemSetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Author");
-
-                    b.Navigation("ProblemSet");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemSetEntity", b =>
@@ -418,15 +395,23 @@ namespace SqlMigrations.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
+            modelBuilder.Entity("SqlMigrations.Entities.ProblemSetProblemEntity", b =>
                 {
-                    b.HasOne("SqlMigrations.Entities.SubmissionStatisticsEntity", "SubmissionStatistics")
+                    b.HasOne("SqlMigrations.Entities.ProblemEntity", "Problem")
                         .WithMany()
-                        .HasForeignKey("SubmissionStatisticsId")
+                        .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SubmissionStatistics");
+                    b.HasOne("SqlMigrations.Entities.ProblemSetEntity", "ProblemSet")
+                        .WithMany("ProblemSetProblems")
+                        .HasForeignKey("ProblemSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Problem");
+
+                    b.Navigation("ProblemSet");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.SolutionEntity", b =>
@@ -470,17 +455,6 @@ namespace SqlMigrations.Migrations
                     b.Navigation("Problem");
                 });
 
-            modelBuilder.Entity("SqlMigrations.Entities.WaReportEntity", b =>
-                {
-                    b.HasOne("SqlMigrations.Entities.ReportEntity", "Report")
-                        .WithOne("WaReport")
-                        .HasForeignKey("SqlMigrations.Entities.WaReportEntity", "ReportId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Report");
-                });
-
             modelBuilder.Entity("SqlMigrations.Entities.CourseEntity", b =>
                 {
                     b.Navigation("CourseUser");
@@ -498,13 +472,7 @@ namespace SqlMigrations.Migrations
 
             modelBuilder.Entity("SqlMigrations.Entities.ProblemSetEntity", b =>
                 {
-                    b.Navigation("Problems");
-                });
-
-            modelBuilder.Entity("SqlMigrations.Entities.ReportEntity", b =>
-                {
-                    b.Navigation("WaReport")
-                        .IsRequired();
+                    b.Navigation("ProblemSetProblems");
                 });
 
             modelBuilder.Entity("SqlMigrations.Entities.UserEntity", b =>

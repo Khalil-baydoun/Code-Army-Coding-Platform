@@ -1,32 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Data;
 using DataContracts.Problems;
 using WebApi.Store.Interfaces;
-using System;
 using WebApi.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
 using SqlMigrations;
-using DataContracts.Comments;
+using Utilities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-using AutoMapper;
-using SqlMigrations.Entities;
 
 namespace WebApi.Store.Sql
 {
     public class SqlProblemStore : IProblemStore
     {
-        private readonly ISqlConnectionFactory _sqlConnectionFactory;
         private readonly GlobalMapper _mapper;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public SqlProblemStore(GlobalMapper mapper, ISqlConnectionFactory sqlConnectionFactory, IServiceScopeFactory scopeFactory)
+        public SqlProblemStore(GlobalMapper mapper, IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
             _mapper = mapper;
-            _sqlConnectionFactory = sqlConnectionFactory;
         }
 
         public Problem GetProblem(string problemId)
@@ -35,13 +25,14 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var problemEntity = db.Problems
-                    .Where(ps => ps.Id == Int32.Parse(problemId))
+                    .Where(ps => ps.Id == int.Parse(problemId))
                     .ToList().FirstOrDefault();
 
                 if (problemEntity == null)
                 {
                     throw new NotFoundException($"Problem with id {problemId} was not found");
                 }
+
                 return _mapper.ToProblem(problemEntity);
             }
         }
@@ -52,9 +43,10 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var problemEntity = db.Problems
-                    .First(ps => ps.Id == Int32.Parse(problemId));
+                    .First(ps => ps.Id == int.Parse(problemId));
                 db.Problems.Remove(problemEntity);
                 var success = await db.SaveChangesAsync() > 0;
+
                 if (!success)
                 {
                     throw new Exception("Could not delete problem");
@@ -62,18 +54,29 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public List<Problem> GetProblems()
+        public List<Problem> GetProblems(string userEmail)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var problemEntities = db.Problems
-                    .ToList();
-                return problemEntities.Select(entity => _mapper.ToProblem(entity)).ToList();
+                return db.Problems
+                    .Where(entity => entity.AuthorEmail.Equals(userEmail))
+                    .Select(entity => _mapper.ToProblem(entity)).ToList();
             }
         }
 
-        public async Task<String> AddProblem(Problem problem)
+        public List<Problem> GetPublicProblems()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                return db.Problems
+                    .Where(entity => entity.IsPublic)
+                    .Select(entity => _mapper.ToProblem(entity)).ToList();
+            }
+        }
+
+        public async Task<string> AddProblem(Problem problem)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -82,7 +85,7 @@ namespace WebApi.Store.Sql
                 try
                 {
                     var entity = _mapper.ToProblemEntity(problem);
-                    db.Problems.Add(entity);
+                    await db.Problems.AddAsync(entity);
                     await db.SaveChangesAsync();
                     transaction.Commit();
                     return entity.Id.ToString();
@@ -95,15 +98,6 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public string GetCourseIdOfProblem(string problemId)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var courseId = db.Problems.Where(x => x.Id == Int32.Parse(problemId)).Select(x => x.ProblemSet.CourseId).FirstOrDefault();
-                return courseId.ToString();
-            }
-        }
         public async Task UpdateProblem(Problem problem)
         {
             using (var scope = _scopeFactory.CreateScope())
@@ -113,16 +107,12 @@ namespace WebApi.Store.Sql
                 var target = db.Problems
                     .Where(ps => ps.Id == problem.Id)
                     .ToList().FirstOrDefault();
-                entity.ProblemSetId = target.ProblemSetId;
+
                 if (target != null)
                 {
-                    PropertyInfo[] destinationProperties = target.GetType().GetProperties();
-                    foreach (PropertyInfo destinationPi in destinationProperties)
-                    {
-                        PropertyInfo sourcePi = entity.GetType().GetProperty(destinationPi.Name);
-                        destinationPi.SetValue(target, sourcePi.GetValue(entity, null), null);
-                    }
+                    entity.CopyProperties(target);
                     var success = await db.SaveChangesAsync() > 0;
+
                     if (!success)
                     {
                         throw new Exception("Could not update problem");
@@ -135,13 +125,43 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public bool IsOwner(string problemId, string userEmail)
+        public async Task<bool> IsOwner(string problemId, string userEmail)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var problemEntities = db.Problems.Where(ps => Int32.Parse(problemId) == ps.Id && userEmail.Equals(ps.AuthorEmail)).ToList();
-                return problemEntities.Count > 0;
+                return await db.Problems
+                    .Where(ps => int.Parse(problemId) == ps.Id && userEmail.Equals(ps.AuthorEmail))
+                    .AnyAsync();
+            }
+        }
+
+        public async Task<bool> CanSubmit(string problemId, string userEmail)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                // if problem is public or user is owner of problem, then user can submit
+                if (await db.Problems
+                    .Where(p => p.Id == int.Parse(problemId) && (userEmail.Equals(p.AuthorEmail) || p.IsPublic))
+                    .AnyAsync())
+                {
+                    return true;
+                }
+
+                // check if a the user belongs to a course that has a problem set that contains this problem
+                return await db.ProblemSetProblems
+                    .Where(psp => psp.ProblemId == int.Parse(problemId))
+                    .Include(psp => psp.ProblemSet)
+                    .ThenInclude(ps => ps.Course)
+                    .ThenInclude(c => c.CourseUser)
+                    .Select(psp => psp.ProblemSet)
+                    .Select(ps => ps.Course)
+                    .SelectMany(c => c.CourseUser)
+                    .Select(cu => cu.UserEmail)
+                    .Where(em => em.Equals(userEmail))
+                    .AnyAsync();
             }
         }
     }

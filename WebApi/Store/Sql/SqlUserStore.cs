@@ -12,7 +12,6 @@ namespace WebApi.Store.Sql
     public class SqlUserStore : IUserStore
     {
         private readonly GlobalMapper _mapper;
-
         private readonly IServiceScopeFactory scopeFactory;
 
         public SqlUserStore(GlobalMapper _mapper, IServiceScopeFactory scopeFactory)
@@ -30,15 +29,12 @@ namespace WebApi.Store.Sql
                 try
                 {
                     var entity = _mapper.ToUserEntity(userReq);
-                    db.Users.Add(entity);
+                    await db.Users.AddAsync(entity);
                     await db.SaveChangesAsync();
 
                     if (userReq.CourseIds != null)
                     {
-                        foreach (var courseId in userReq.CourseIds)
-                        {
-                            db.CourseUsers.Add(new CourseUserEntity { CourseId = Int32.Parse(courseId), UserEmail = userReq.Email });
-                        }
+                        await db.CourseUsers.AddRangeAsync(userReq.CourseIds.Select(courseId => new CourseUserEntity { CourseId = int.Parse(courseId), UserEmail = userReq.Email }).ToArray());
                         await db.SaveChangesAsync();
                     }
 
@@ -57,18 +53,22 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
                 var userEntity = db.Users
                     .Where(ps => ps.Email == email)
                     .Include(ps => ps.CourseUser)
                     .ThenInclude(ps => ps.Course)
                     .ToList().FirstOrDefault();
+
                 var ownedCourses = db.Courses
                     .Where(ps => ps.AuthorEmail.Equals(email))
                     .ToList();
+
                 if (userEntity == null)
                 {
                     throw new NotFoundException($"User with email {email} was not found");
                 }
+
                 return _mapper.ToUser(userEntity, ownedCourses);
             }
         }
@@ -96,6 +96,7 @@ namespace WebApi.Store.Sql
                 var target = db.Users
                     .Where(ps => ps.Email == user.Email)
                     .ToList().FirstOrDefault();
+
                 if (target != null)
                 {
                     entity.CopyProperties(target);
@@ -109,15 +110,6 @@ namespace WebApi.Store.Sql
                 {
                     throw new NotFoundException($"User with email {user.Email} was not found");
                 }
-            }
-        }
-
-        public async Task<bool> UserExists(string email)
-        {
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                return await db.Users.FindAsync(email) != null;
             }
         }
     }

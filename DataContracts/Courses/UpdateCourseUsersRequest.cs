@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 namespace DataContracts.Courses
 {
-    public class AddUsersRequest
+    public class UpdateCourseUsersRequest
     {
-        public IFormFile Users { get; set; }
+        public List<string> UserEmails { get; set; }
 
         public string CourseId { get; set; }
     }

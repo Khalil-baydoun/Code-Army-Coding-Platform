@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WebApi.Middlewares;
 using SqlMigrations;
 using webapi.Store.Interfaces;
-using WebApi.SignalR;
 using Microsoft.EntityFrameworkCore;
 using webapi.Store.Settings;
 using webapi.Services.Implementations;
 using System.Text.Json.Serialization;
+using Webapi.JudgingQueue;
+using Webapi.Services.Implementations.Settings;
 
 namespace webapi
 {
@@ -66,8 +67,8 @@ namespace webapi
             services.AddSingleton<ISolutionService, SolutionService>();
             services.AddSingleton<ISolutionStore, SqlSolutionStore>();
             services.AddSingleton<IWaReportStore, SqlWrongReportStore>();
-            services.AddSingleton<IReportStore, SqlReportStore>();
-            services.AddSingleton<IReportService, ReportService>();
+            services.AddSingleton<ISubmissionQueue, ServiceBusSubmissionQueue>();
+            services.AddSingleton<IWaReportService, WaReportService>();
 
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
             services.AddDbContext<DataContext>(opt =>
@@ -115,6 +116,8 @@ namespace webapi
             });
 
             services.Configure<DatabaseConnectionSettings>(Configuration.GetSection("DatabaseSettings"));
+            services.Configure<ServiceBusSettings>(Configuration.GetSection("ServiceBusSettings"));
+            services.Configure<JobeServerSettings>(Configuration.GetSection("JobeServerSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -124,6 +127,9 @@ namespace webapi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // kickstart queue intialization
+            app.ApplicationServices.GetService<ISubmissionQueue>();
 
             app.UseCors("CorsPolicy");
 

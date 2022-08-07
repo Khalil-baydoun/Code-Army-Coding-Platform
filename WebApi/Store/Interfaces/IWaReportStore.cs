@@ -5,6 +5,8 @@ namespace WebApi.Store.Interfaces
 {
     public interface IWaReportStore
     {
-        int AddReport(WrongAnswerReport wrongAnswerReport);
+        void AddReport(WrongAnswerReport wrongAnswerReport);
+
+        WrongAnswerReport GetWaReport(string submissionId);
     }
 }

@@ -10,7 +10,7 @@ namespace webapi.Store.Interfaces
 
         Task AddProblemToProblemSet(int problemSetId, int problemId);
 
-        bool IsOwner(string problemSetId, string userEmail);
+        Task<bool> IsOwner(string problemSetId, string userEmail);
 
         Task UpdateProblemSet(ProblemSet problemSet);
 

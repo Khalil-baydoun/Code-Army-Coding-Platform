@@ -23,10 +23,6 @@ namespace SqlMigrations.Entities
 
         public int Verdict { get; set; }
 
-        public long TimeTakenInMilliseconds { get; set; }
-
-        public long MemoryTakenInKiloBytes { get; set; }
-
         public string SourceCode { get; set; }
 
         public DateTime SubmittedAt { get; set; }

@@ -13,9 +13,9 @@ namespace WebApi.Controllers
     {
         private readonly ILogger<TestController> _logger;
         private readonly ITestService _testService;
-        private readonly WebApi.Services.Interfaces.IAuthorizationService _authorizationService;
+        private readonly Services.Interfaces.IAuthorizationService _authorizationService;
 
-        public TestController(WebApi.Services.Interfaces.IAuthorizationService authorizationService, IProblemService problemService, ILogger<TestController> logger, ITestService testService)
+        public TestController(Services.Interfaces.IAuthorizationService authorizationService, IProblemService problemService, ILogger<TestController> logger, ITestService testService)
         {
             _authorizationService = authorizationService;
             _logger = logger;
@@ -23,9 +23,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{problemId}")]
-        public IActionResult GetTests(string problemId)
+        public async Task<IActionResult> GetTests(string problemId)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -37,7 +37,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTest([FromBody] TestUnit test)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(test.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(test.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -49,7 +49,7 @@ namespace WebApi.Controllers
         [HttpPost("uploadTests")]
         public async Task<IActionResult> UploadTests([FromForm] UploadTestsRequest uploadTestsRequest)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(uploadTestsRequest.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(uploadTestsRequest.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -62,7 +62,7 @@ namespace WebApi.Controllers
         [HttpDelete("{problemId}")]
         public async Task<IActionResult> DeleteProblemTests(string problemId)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
             {
                 return Forbid();
             }

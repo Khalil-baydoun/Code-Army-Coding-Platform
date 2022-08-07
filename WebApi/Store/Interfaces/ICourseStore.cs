@@ -14,7 +14,9 @@ namespace webapi.Store.Interfaces
 
         Task AddUsersToCourse(int courseId, List<string> usersEmails);
 
-        bool IsOwner(string courseId, string userEmail);
+        Task RemoveUsersFromCourse(int courseId, List<string> usersEmails);
+
+        Task<bool> IsOwner(string courseId, string userEmail);
 
         bool IsMember(string courseId, string userEmail);
 

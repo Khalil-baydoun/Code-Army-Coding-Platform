@@ -7,12 +7,6 @@ namespace webapi
     {
         public static void Main(string[] args)
         {
-            string path = "./submissions";
-            if (!Directory.Exists(path))
-            {
-                DirectoryInfo di = Directory.CreateDirectory(path);
-            }
-
             var host = CreateHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
             {
@@ -22,7 +16,6 @@ namespace webapi
                 {
                     var context = services.GetRequiredService<DataContext>();
                     context.Database.Migrate();
-                    // Seed.SeedData(context);
                 }
                 catch (Exception ex)
                 {

@@ -5,7 +5,7 @@ using webapi.Store.Interfaces;
 using SqlMigrations;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Exceptions;
-using System.Reflection;
+using Utilities;
 
 namespace WebApi.Store.Sql
 {
@@ -26,17 +26,19 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var courseEntity = db.Courses
-                    .Where(ps => ps.Id == Int32.Parse(courseId))
+                    .Where(ps => ps.Id == int.Parse(courseId))
                     .Include(ps => ps.CourseUser)
                     .Include(ps => ps.ProblemSets)
-                    .Include(ps => ps.ProblemSets)
-                    .ThenInclude(ps => ps.Problems)
+                    .ThenInclude(ps => ps.ProblemSetProblems)
+                    .ThenInclude(ps => ps.Problem)
                     .ThenInclude(ps => ps.Author)
                     .ToList().FirstOrDefault();
+
                 if (courseEntity == null)
                 {
                     throw new NotFoundException($"Course with id {courseId} was not found");
                 }
+
                 return _mapper.ToCourse(courseEntity);
             }
         }
@@ -50,16 +52,15 @@ namespace WebApi.Store.Sql
                 try
                 {
                     var entity = _mapper.ToCourseEntity(course);
-                    db.Courses.Add(entity);
+                    await db.Courses.AddAsync(entity);
                     await db.SaveChangesAsync();
+
                     if (course.UsersEmails != null)
                     {
-                        foreach (var userEmail in course.UsersEmails)
-                        {
-                            db.CourseUsers.Add(new CourseUserEntity { CourseId = entity.Id, UserEmail = userEmail });
-                        }
-                        await db.SaveChangesAsync();
+                        await db.CourseUsers.AddRangeAsync(course.UsersEmails.Select(userEmail => new CourseUserEntity { CourseId = entity.Id, UserEmail = userEmail }).ToArray());
                     }
+
+                    await db.SaveChangesAsync();
                     transaction.Commit();
                     return entity.Id.ToString();
                 }
@@ -80,14 +81,10 @@ namespace WebApi.Store.Sql
                 var target = db.Courses
                     .Where(ps => ps.Id == course.Id)
                     .ToList().FirstOrDefault();
+
                 if (target != null)
                 {
-                    PropertyInfo[] destinationProperties = target.GetType().GetProperties();
-                    foreach (PropertyInfo destinationPi in destinationProperties)
-                    {
-                        PropertyInfo sourcePi = entity.GetType().GetProperty(destinationPi.Name);
-                        destinationPi.SetValue(target, sourcePi.GetValue(entity, null), null);
-                    }
+                    entity.CopyProperties(target);
                     var success = await db.SaveChangesAsync() > 0;
                     if (!success)
                     {
@@ -106,7 +103,7 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                db.CourseUsers.Add(new CourseUserEntity { CourseId = courseId, UserEmail = userEmail });
+                await db.CourseUsers.AddAsync(new CourseUserEntity { CourseId = courseId, UserEmail = userEmail });
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {
@@ -125,11 +122,9 @@ namespace WebApi.Store.Sql
                 {
                     if (usersEmails != null)
                     {
-                        foreach (var userEmail in usersEmails)
-                        {
-                            db.CourseUsers.Add(new CourseUserEntity { CourseId = courseId, UserEmail = userEmail.Trim() });
-                        }
+                        await db.CourseUsers.AddRangeAsync(usersEmails.Select(userEmail => new CourseUserEntity { CourseId = courseId, UserEmail = userEmail }).ToArray());
                     }
+
                     await db.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -150,8 +145,10 @@ namespace WebApi.Store.Sql
                     .Where(ps => coursesIds.Contains(ps.Id.ToString()))
                     .Include(ps => ps.CourseUser)
                     .Include(ps => ps.ProblemSets)
-                    .ThenInclude(ps => ps.Problems)
+                    .ThenInclude(ps => ps.ProblemSetProblems)
+                    .ThenInclude(ps => ps.Problem)
                     .ToList();
+
                 return CourseEntities.Select(x => _mapper.ToCourse(x)).ToList();
             }
         }
@@ -162,9 +159,10 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var courseEntity = db.Courses
-                    .First(ps => ps.Id == Int32.Parse(courseId));
+                    .First(ps => ps.Id == int.Parse(courseId));
                 db.Courses.Remove(courseEntity);
                 var success = await db.SaveChangesAsync() > 0;
+
                 if (!success)
                 {
                     throw new Exception("Could not delete course");
@@ -172,13 +170,13 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public bool IsOwner(string courseId, string userEmail)
+        public async Task<bool> IsOwner(string courseId, string userEmail)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var CourseEntities = db.Courses.Where(ps => Int32.Parse(courseId) == ps.Id && userEmail.Equals(ps.AuthorEmail));
-                return CourseEntities.Count() > 0;
+                var CourseEntities = db.Courses.Where(ps => int.Parse(courseId) == ps.Id && userEmail.Equals(ps.AuthorEmail));
+                return await CourseEntities.AnyAsync();
             }
         }
 
@@ -188,17 +186,43 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var courseEntities = db.Courses
-                    .Where(ps => ps.Id == Int32.Parse(courseId))
+                    .Where(ps => ps.Id == int.Parse(courseId))
                     .Include(ps => ps.CourseUser)
                     .ToList();
+
                 if (courseEntities.Count != 1)
                 {
                     throw new NotFoundException($"Course with id {courseId} was not found");
                 }
+
                 return courseEntities
                     .First()
                     .CourseUser.Select(x => x.UserEmail)
                     .Contains(userEmail);
+            }
+        }
+
+        public async Task RemoveUsersFromCourse(int courseId, List<string> usersEmails)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                using var transaction = db.Database.BeginTransaction();
+                try
+                {
+                    if (usersEmails != null)
+                    {
+                        db.CourseUsers.RemoveRange(usersEmails.Select(userEmail => new CourseUserEntity { CourseId = courseId, UserEmail = userEmail }).ToArray());
+                    }
+
+                    await db.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    throw new BadRequestException("Check for the validity of the parameters", e);
+                }
             }
         }
     }

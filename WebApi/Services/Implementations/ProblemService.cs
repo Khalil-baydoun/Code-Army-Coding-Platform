@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DataContracts.Problems;
 using WebApi.Exceptions;
 using WebApi.Services.Interfaces;
@@ -54,9 +52,14 @@ namespace WebApi.Services.Implementations
             await _problemStore.DeleteProblem(problemId);
         }
 
-        public List<Problem> GetProblems()
+        public List<Problem> GetProblems(string userEmail)
         {
-            return _problemStore.GetProblems();
+            return _problemStore.GetProblems(userEmail);
+        }
+
+        public List<Problem> GetPublicProblems()
+        {
+            return _problemStore.GetPublicProblems();
         }
 
         public static bool IsValidString(string value)
@@ -64,14 +67,14 @@ namespace WebApi.Services.Implementations
             return !string.IsNullOrWhiteSpace(value);
         }
 
-        public bool IsOwner(string problemId, string userEmail)
+        public async Task<bool> IsOwner(string problemId, string userEmail)
         {
-            return _problemStore.IsOwner(problemId, userEmail);
+            return await _problemStore.IsOwner(problemId, userEmail);
         }
 
-        public string GetCourseIdOfProblem(string problemId)
+        public async Task<bool> CanSubmit(string problemId, string userEmail)
         {
-            return _problemStore.GetCourseIdOfProblem(problemId);
+            return await _problemStore.CanSubmit(problemId, userEmail);
         }
     }
 }

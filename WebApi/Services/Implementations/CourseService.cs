@@ -6,7 +6,8 @@ namespace WebApi.Services.Implementations
 {
     public class CourseService : ICourseService
     {
-        ICourseStore _courseStore;
+        private readonly ICourseStore _courseStore;
+
         public CourseService(ICourseStore courseStore)
         {
             _courseStore = courseStore;
@@ -37,9 +38,9 @@ namespace WebApi.Services.Implementations
             await _courseStore.AddUsersToCourse(courseId, usersEmails);
         }
 
-        public bool IsOwner(string courseId, string userEmail)
+        public async Task<bool> IsOwner(string courseId, string userEmail)
         {
-            return _courseStore.IsOwner(courseId, userEmail);
+            return await _courseStore.IsOwner(courseId, userEmail);
         }
 
         public bool IsMember(string courseId, string userEmail)
@@ -55,6 +56,11 @@ namespace WebApi.Services.Implementations
         public async Task DeleteCourse(string courseId)
         {
             await _courseStore.DeleteCourse(courseId);
+        }
+
+        public async Task RemoveUsersFromCourse(int courseId, List<string> usersEmails)
+        {
+            await _courseStore.RemoveUsersFromCourse(courseId, usersEmails);
         }
     }
 }

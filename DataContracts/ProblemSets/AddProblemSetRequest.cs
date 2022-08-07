@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DataContracts.ProblemSets
 {
     public class AddProblemSetRequest

@@ -23,7 +23,7 @@ namespace SqlMigrations.Entities
         [ForeignKey("Author"), MaxLength(50)]
         public string AuthorEmail { get; set; }
 
-        public ICollection<ProblemEntity> Problems { get; set; }
+        public ICollection<ProblemSetProblemEntity> ProblemSetProblems { get; set; }
 
         public DateTime DueDate { get; set; }
 

@@ -42,8 +42,6 @@ public class GlobalMapper
             cfg.CreateMap<SubmissionRequest, SolutionEntity>();
             cfg.CreateMap<WrongAnswerReport, WaReportEntity>();
             cfg.CreateMap<WaReportEntity, WrongAnswerReport>();
-            cfg.CreateMap<ReportEntity, Report>();
-            cfg.CreateMap<Report, ReportEntity>();
         });
         _mapper = configuration.CreateMapper();
     }
@@ -143,7 +141,7 @@ public class GlobalMapper
         var problemSet = _mapper.Map<ProblemSet>(entity);
         problemSet.Id = entity.Id;
         //if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');//TODO
-        problemSet.Problems = entity.Problems.Select(x => ToProblem(x)).ToList();
+        problemSet.Problems = entity.ProblemSetProblems.Select(x => ToProblem(x.Problem)).ToList();
         return problemSet;
     }
 
@@ -185,16 +183,9 @@ public class GlobalMapper
         return entity;
     }
 
-    public ReportEntity ToReportEntity(Report report)
+    public WrongAnswerReport ToWaReport(WaReportEntity entity)
     {
-        return _mapper.Map<ReportEntity>(report);
-    }
-
-    public Report ToReport(ReportEntity entity)
-    {
-        var report = _mapper.Map<Report>(entity);
-        report.Id = entity.Id;
-        return report;
+        return _mapper.Map<WrongAnswerReport>(entity);
     }
 
     public TestEntity ToTestEntity(TestUnit test)

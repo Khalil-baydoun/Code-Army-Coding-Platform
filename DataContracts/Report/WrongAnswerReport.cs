@@ -6,6 +6,8 @@ namespace DataContracts.Report
     {
         public int Id {get; set;}
 
+        public int SubmissionId { get; set; }
+
         public string ActualOutput { get; set; }
 
         public string ExpectedOutput { get; set; }

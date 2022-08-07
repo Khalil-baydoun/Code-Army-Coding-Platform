@@ -7,18 +7,16 @@ namespace WebApi.Store.Sql
 {
     public class SqlWrongReportStore : IWaReportStore
     {
-        private readonly ISqlConnectionFactory _sqlConnectionFactory;
         private readonly GlobalMapper _mapper;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public SqlWrongReportStore(GlobalMapper mapper, ISqlConnectionFactory sqlConnectionFactory, IServiceScopeFactory scopeFactory)
+        public SqlWrongReportStore(GlobalMapper mapper, IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
             _mapper = mapper;
-            _sqlConnectionFactory = sqlConnectionFactory;
         }
 
-        public int AddReport(WrongAnswerReport wrongAnswerReport) 
+        public void AddReport(WrongAnswerReport wrongAnswerReport)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -26,11 +24,10 @@ namespace WebApi.Store.Sql
                 using var transaction = db.Database.BeginTransaction();
                 try
                 {
-                    var entity = _mapper.ToWaReportEntity(wrongAnswerReport); //
+                    var entity = _mapper.ToWaReportEntity(wrongAnswerReport);
                     db.WaReports.Add(entity);
                     db.SaveChangesAsync();
                     transaction.Commit();
-                    return entity.Id;
                 }
                 catch (Exception e)
                 {
@@ -38,10 +35,32 @@ namespace WebApi.Store.Sql
                     throw new BadRequestException("Check for the validity of the parameters", e);
                 }
             }
-
-
         }
 
+        public WrongAnswerReport GetWaReport(string submissionId)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                try
+                {
+                    var report = db.WaReports
+                        .Where(x => x.SubmissionStatisticsId == int.Parse(submissionId))
+                        .FirstOrDefault();
 
+                    if (report == null)
+                    {
+                        throw new NotFoundException("WaReport was not found");
+                    }
+
+                    return _mapper.ToWaReport(report);
+                }
+                catch (Exception e)
+                {
+                    throw new BadRequestException("Check for the validity of the parameters", e);
+                }
+
+            }
+        }
     }
 }

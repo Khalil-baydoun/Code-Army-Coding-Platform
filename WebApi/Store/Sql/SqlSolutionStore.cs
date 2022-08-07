@@ -12,16 +12,15 @@ namespace WebApi.Store.Sql
 {
     public class SqlSolutionStore : ISolutionStore
     {
-        private readonly ISqlConnectionFactory _sqlConnectionFactory;
         private readonly GlobalMapper _mapper;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public SqlSolutionStore(GlobalMapper mapper, ISqlConnectionFactory sqlConnectionFactory, IServiceScopeFactory scopeFactory)
+        public SqlSolutionStore(GlobalMapper mapper, IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
             _mapper = mapper;
-            _sqlConnectionFactory = sqlConnectionFactory;
         }
+
         public async Task<string> AddSolution(SubmissionRequest submissionRequest)
         {
             using (var scope = _scopeFactory.CreateScope())

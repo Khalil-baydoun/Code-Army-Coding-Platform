@@ -4,15 +4,14 @@ using webapi.Store.Interfaces;
 using SqlMigrations;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Exceptions;
-using System.Reflection;
+using SqlMigrations.Entities;
+using Utilities;
 
 namespace WebApi.Store.Sql
 {
     public class SqlProblemSetStore : IProblemSetStore
     {
         private readonly GlobalMapper _mapper;
-        private readonly ISqlConnectionFactory _sqlConnectionFactory;
-
         private readonly IServiceScopeFactory scopeFactory;
 
         public SqlProblemSetStore(GlobalMapper _mapper, IServiceScopeFactory scopeFactory)
@@ -27,22 +26,24 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var problemSetEntity = db.ProblemSets
-                    .Where(ps => ps.Id == Int32.Parse(problemSetId))
-                    .Include(ps => ps.Problems)
+                    .Where(ps => ps.Id == int.Parse(problemSetId))
+                    .Include(ps => ps.ProblemSetProblems)
+                    .ThenInclude(ps => ps.Problem)
                     .ToList().FirstOrDefault();
+
                 if (problemSetEntity == null)
                 {
                     throw new NotFoundException($"Problem Set with id {problemSetId} was not found");
                 }
+
                 return _mapper.ToProblemSet(problemSetEntity);
             }
         }
 
-        public async Task<String> AddProblemSet(AddProblemSetRequest problemSet)
+        public async Task<string> AddProblemSet(AddProblemSetRequest problemSet)
         {
             using (var scope = scopeFactory.CreateScope())
             {
-
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 using var transaction = db.Database.BeginTransaction();
                 try
@@ -50,19 +51,16 @@ namespace WebApi.Store.Sql
                     var entity = _mapper.ToProblemSetEntity(problemSet);
                     db.ProblemSets.Add(entity);
                     await db.SaveChangesAsync();
+
                     if (problemSet.ProblemIds != null)
                     {
-                        foreach (var probId in problemSet.ProblemIds)
-                        {
-                            var problem = db.Problems.Where(ps => ps.Id == Int32.Parse(probId)).FirstOrDefault();
-                            if (problem != null)
-                            {
-                                problem.ProblemSetId = entity.Id;
-                            }
-                            await db.SaveChangesAsync();
-                        }
-
+                        await db.ProblemSetProblems
+                            .AddRangeAsync(problemSet.ProblemIds
+                                .Select(problemId => new ProblemSetProblemEntity { ProblemId = int.Parse(problemId), ProblemSetId = entity.Id })
+                                .ToArray());
+                        await db.SaveChangesAsync();
                     }
+
                     transaction.Commit();
                     return entity.Id.ToString();
                 }
@@ -71,7 +69,6 @@ namespace WebApi.Store.Sql
                     await transaction.RollbackAsync();
                     throw new BadRequestException("Check for the validity of the parameters", e);
                 }
-
             }
         }
 
@@ -86,15 +83,7 @@ namespace WebApi.Store.Sql
                     .ToList().FirstOrDefault();
                 if (target != null)
                 {
-                    PropertyInfo[] destinationProperties = target.GetType().GetProperties();
-                    foreach (PropertyInfo destinationPi in destinationProperties)
-                    {
-                        PropertyInfo sourcePi = entity.GetType().GetProperty(destinationPi.Name);
-                        if (sourcePi.GetValue(entity, null) != null)
-                        {
-                            destinationPi.SetValue(target, sourcePi.GetValue(entity, null), null);
-                        }
-                    }
+                    entity.CopyProperties(target);
                     var success = await db.SaveChangesAsync() > 0;
                     if (!success)
                     {
@@ -113,26 +102,21 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var problem = db.Problems.Where(ps => ps.Id == problemId).FirstOrDefault();
-                if (problem != null)
-                {
-                    problem.ProblemSetId = problemSetId;
-                }
+                await db.ProblemSetProblems.AddAsync(new ProblemSetProblemEntity { ProblemId = problemId, ProblemSetId = problemSetId });
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {
-                    throw new Exception("Could add problem to problem set");
+                    throw new Exception("Could not add problem to problem set");
                 }
             }
         }
 
-        public bool IsOwner(string problemSetId, string userEmail)
+        public async Task<bool> IsOwner(string problemSetId, string userEmail)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var problemSetEntities = db.ProblemSets.Where(ps => Int32.Parse(problemSetId) == ps.Id && userEmail.Equals(ps.AuthorEmail)).ToList();
-                return problemSetEntities.Count > 0;
+                return await db.ProblemSets.Where(ps => int.Parse(problemSetId) == ps.Id && userEmail.Equals(ps.AuthorEmail)).AnyAsync();
             }
         }
 
@@ -142,7 +126,7 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var problemSetEntity = db.ProblemSets
-                    .First(ps => ps.Id == Int32.Parse(problemSetId));
+                    .First(ps => ps.Id == int.Parse(problemSetId));
                 db.ProblemSets.Remove(problemSetEntity);
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)

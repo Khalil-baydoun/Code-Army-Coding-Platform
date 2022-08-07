@@ -7,7 +7,7 @@ using WebApi.Store.Interfaces;
 
 public class JudgingQueue
 {
-
+    /*
     IOnlineJudgeService _judgingService;
     IStatisticsService _statService;
     IWaReportStore _waReportStore;
@@ -30,7 +30,7 @@ public class JudgingQueue
     private int cnt = 0;
     private Queue<Tuple<SubmissionRequest, bool, SubmissionStatistics>> _jobs = new Queue<Tuple<SubmissionRequest, bool, SubmissionStatistics>>();
     private bool _delegateQueuedOrRunning = false;
-
+    
     public void Enqueue(SubmissionRequest request, bool isSolution, ClaimsPrincipal user)
     {
         lock (_jobs)
@@ -53,12 +53,12 @@ public class JudgingQueue
             if (!_delegateQueuedOrRunning)
             {
                 _delegateQueuedOrRunning = true;
-                ThreadPool.UnsafeQueueUserWorkItem(ProcessQueuedItems, null);
+                 ThreadPool.UnsafeQueueUserWorkItem(ProcessQueuedItems, null);
             }
         }
     }
 
-    private void ProcessQueuedItems(object ignored)
+    private async Task ProcessQueuedItems(object ignored)
     {
         while (true)
         {
@@ -76,14 +76,9 @@ public class JudgingQueue
             {
                 Console.WriteLine("Judging Process #" + cnt.ToString());
                 cnt++;
-                //SubmissionResponse response = _judgingService.JudgeCode(item.Item1, item.Item2);
-                SubmissionResponse response = new SubmissionResponse();
+                SubmissionResponse response = await _judgingService.JudgeCode(item.Item1, item.Item2);
                 if (!item.Item2)
                 {
-                    response.Report.Id = item.Item3.Id;
-
-                    _reportStore.addReport(response.Report);
-
                     if (response.Verdict == Verdict.WrongAnswer)
                     {
                         response.WaReport.Id = item.Item3.Id;
@@ -126,4 +121,5 @@ public class JudgingQueue
             ProgrammingLanguage = req.ProgLanguage
         };
     }
+    */
 }

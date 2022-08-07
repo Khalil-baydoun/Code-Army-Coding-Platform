@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http;
 using webapi;
 using SqlMigrations;
 using System;
@@ -11,19 +10,16 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using TestUtilities;
-using DataContracts.Users;
 
 namespace CodeArmyIntegrationTests
 {
     public sealed class IntegrationTestFixture : IDisposable
     {
-        public HttpClient AdminTestClient { get; private set; }
+        public TestUser AdminTestUser { get; private set; }
         public TestServer Server { get; private set; }
         public IConfiguration TestConfiguration { get; private set; }
         public GlobalMapper? GlobalMapper { get; private set; }
         private static bool databaseUp = false;
-
-        private static object databaseLockObject = new object();
 
         public IntegrationTestFixture()
         {
@@ -41,21 +37,17 @@ namespace CodeArmyIntegrationTests
             {
                 var services = scope.ServiceProvider;
                 try
-
                 {
                     var dbContext = services.GetRequiredService<DataContext>();
                     dbContext.Database.Migrate();
-                    lock (databaseLockObject)
-                    {
-                        databaseUp = true;
-                    }
+                    databaseUp = true;
                 }
                 catch (Exception)
                 {
                 }
             }
 
-            AdminTestClient = Server.CreateClient(Role.Admin);
+            AdminTestUser = TestUser.CreateAdmin(Server);
 
             var newServices = new ServiceCollection();
             newServices.AddSingleton(new GlobalMapper());

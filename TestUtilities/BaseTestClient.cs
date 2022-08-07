@@ -18,7 +18,7 @@ namespace TestUtilities
             return requestUrl;
         }
 
-        public static async Task<HttpResponseMessage> SendRequestAsync(this HttpClient client, HttpMethod method, string? endpoint = null, HttpContent? content = null, Dictionary<string, string>? queryParams = null, Dictionary<string, string>? headers = null)
+        public static async Task<HttpResponseMessage> SendRequestAsync(this TestUser user, HttpMethod method, string? endpoint = null, HttpContent? content = null, Dictionary<string, string>? queryParams = null, Dictionary<string, string>? headers = null)
         {
             var requestMessage = new HttpRequestMessage(method, ConstructRequestUrl(endpoint, queryParams))
             {
@@ -33,7 +33,7 @@ namespace TestUtilities
                 }
             }
 
-            var resp = await client.SendAsync(requestMessage);
+            var resp = await user.Client.SendAsync(requestMessage);
             await EnsureSuccessOrThrowAsync(resp);
             return resp;
         }

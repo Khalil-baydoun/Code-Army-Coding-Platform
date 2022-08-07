@@ -31,13 +31,12 @@ namespace SqlMigrations
         public DbSet<TestEntity> Tests { get; set; }
         
         public DbSet<CourseUserEntity> CourseUsers { get; set; }
- 
+
+        public DbSet<ProblemSetProblemEntity> ProblemSetProblems { get; set; }
+
         public DbSet<SubmissionStatisticsEntity> SubmissionStatistics { get; set; }
         
         public DbSet<WaReportEntity> WaReports {get; set; }
-
-        public DbSet<ReportEntity> Reports {get; set; }
- 
 
         public DataContext(DbContextOptions options) : base(options)
         {
@@ -48,16 +47,19 @@ namespace SqlMigrations
             // Setup Composite Keys
             modelBuilder.Entity<CourseUserEntity>()
                 .HasKey(ent => new { ent.CourseId, ent.UserEmail });
-            
-            modelBuilder.Entity<ProblemEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ProblemSetProblemEntity>()
+                .HasKey(ent => new { ent.ProblemId, ent.ProblemSetId });
 
             modelBuilder.Entity<ProblemEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<ProblemEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<SubmissionStatisticsEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
             modelBuilder.Entity<CourseEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
             modelBuilder.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ProblemSetEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
             modelBuilder.Entity<UserEntity>().Property(e => e.FirstName).IsRequired();
 

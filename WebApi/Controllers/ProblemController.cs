@@ -1,11 +1,10 @@
 using System.Security.Claims;
 using DataContracts.Problems;
-using DataContracts.ProblemSets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using webapi.Services.Interfaces;
 using WebApi.Services.Interfaces;
 using DataContracts.Submissions;
+using Webapi.JudgingQueue;
 
 namespace WebApi.Controllers
 {
@@ -15,42 +14,25 @@ namespace WebApi.Controllers
     public class ProblemController : ControllerBase
     {
         private readonly ILogger<ProblemController> _logger;
-
         private readonly IProblemService _problemSevice;
-
-        private readonly IProblemSetService _problemSetService;
-
-        private readonly ICourseService _courseService;
-
-        private readonly IOnlineJudgeService _judgeSevice;
-
         private readonly Services.Interfaces.IAuthorizationService _authorizationService;
-
         private readonly ISolutionService _solutionService;
-
         private readonly GlobalMapper _mapper;
-
-        private readonly JudgingQueue _queue;
+        private readonly ISubmissionQueue _queue;
 
         public ProblemController(
-            JudgingQueue queue,
+            ISubmissionQueue queue,
             Services.Interfaces.IAuthorizationService authorizationService,
-            ICourseService courseService,
-            IProblemSetService problemSetSevice,
             GlobalMapper mapper,
             ILogger<ProblemController> logger,
             IProblemService problemSevice,
-            IOnlineJudgeService judgeSevice,
             ISolutionService solutionService)
         {
             _queue = queue;
             _authorizationService = authorizationService;
-            _problemSetService = problemSetSevice;
-            _courseService = courseService;
             _mapper = mapper;
             _logger = logger;
             _problemSevice = problemSevice;
-            _judgeSevice = judgeSevice;
             _solutionService = solutionService;
         }
 
@@ -58,14 +40,8 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddProblem([FromBody] CreateProblemRequest req)
         {
-            ProblemSet problemSet = _problemSetService.GetProblemSet(req.ProblemSetId);
-            if (!_authorizationService.IsAuthorizedToCourse(problemSet.CourseId.ToString(), User))
-            {
-                return Forbid();
-            }
             var problem = _mapper.ToProblem(req);
             problem.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
-            if (req.ProblemSetId != null) problem.ProblemSetId = req.ProblemSetId;
             var id = await _problemSevice.AddProblem(problem);
             return Ok(new { ProblemId = id.ToString() });
         }
@@ -78,6 +54,14 @@ namespace WebApi.Controllers
             return Ok(problem);
         }
 
+        [HttpGet("public")]
+        [Authorize]
+        public IActionResult GetPublicProblems()
+        {
+            var problem = _problemSevice.GetPublicProblems();
+            return Ok(problem);
+        }
+
         [HttpDelete("{problemId}")]
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> DeleteProblem(string problemId)
@@ -87,10 +71,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Admins&Instructors")]
         public IActionResult GetProblems()
         {
-            var problems = _problemSevice.GetProblems();
+            var problems = _problemSevice.GetProblems(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value);
             return Ok(problems);
         }
 
@@ -98,12 +82,12 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> UpdateProblem(string id, [FromBody] UpdateProblemRequest req)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(id, User))
+            if (!await _authorizationService.IsOwnerOfProblem(id, User))
             {
                 return Forbid();
             }
             var problem = _mapper.ToProblem(req);
-            problem.Id = Int32.Parse(id);
+            problem.Id = int.Parse(id);
             problem.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
             await _problemSevice.UpdateProblem(problem);
             return Ok();
@@ -114,19 +98,22 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddSolution([FromForm] SolutionRequest solutionRequest)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(solutionRequest.ProblemId, User))
+            if (!await _authorizationService.IsOwnerOfProblem(solutionRequest.ProblemId, User))
             {
                 return Forbid();
             }
             var solution = await ToSubmissionRequest(solutionRequest);
-            _queue.Enqueue(solution, true, User);
+
+            solution.IsSolution = true;
+            solution.UserEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            await _queue.EnqueueSubmission(solution);
             return Ok();
         }
 
         [HttpGet("solution/{problemId}")]
         public async Task<IActionResult> GetSolution(string problemId, [FromQuery] string progLang)
         {
-            if (!_authorizationService.IsAuthorizedToProblem(problemId, User))
+            if (!await _authorizationService.IsOwnerOfProblem(problemId, User))
             {
                 return Forbid();
             }
@@ -135,7 +122,7 @@ namespace WebApi.Controllers
             return Ok(solution);
         }
 
-        private async Task<SubmissionRequest> ToSubmissionRequest(SolutionRequest solutionRequest)
+        private static async Task<SubmissionRequest> ToSubmissionRequest(SolutionRequest solutionRequest)
         {
             var sourceCode = await ReadAllFileAsync(solutionRequest.SourceCode);
             var submissionRequest = new SubmissionRequest
@@ -147,7 +134,7 @@ namespace WebApi.Controllers
             return submissionRequest;
         }
 
-        private async Task<string> ReadAllFileAsync(IFormFile file)
+        private static async Task<string> ReadAllFileAsync(IFormFile file)
         {
             string result;
             using (var reader = new StreamReader(file.OpenReadStream()))

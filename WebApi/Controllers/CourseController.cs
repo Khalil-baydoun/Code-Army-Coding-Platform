@@ -36,21 +36,22 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> UpdateCourse(string id, [FromBody] UpdateCourseRequest req)
         {
-            if (!_authorizationService.IsAuthorizedToCourse(id, User))
+            if (!await _authorizationService.IsAuthorizedToCourse(id, User))
             {
                 return Forbid();
             }
             var course = _mapper.ToCourse(req);
-            course.Id = Int32.Parse(id);
+            course.Id = int.Parse(id);
             course.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
             await _courseService.UpdateCourse(course);
             return Ok();
         }
 
         [HttpGet("{CourseId}")]
-        public IActionResult GetCourse(string courseId)
+        [Authorize]
+        public async Task<IActionResult> GetCourse(string courseId)
         {
-            if (!_authorizationService.IsMemberOfCourse(courseId, User))
+            if (!await _authorizationService.IsMemberOfCourse(courseId, User))
             {
                 return Forbid();
             }
@@ -58,28 +59,29 @@ namespace WebApi.Controllers
             return Ok(course);
         }
 
-        [HttpPost("adduser")]
+        [HttpPost("addusers")]
         [Authorize(Policy = "Admins&Instructors")]
-        public async Task<IActionResult> AddUserToCourse([FromBody] AddUserToCourseRequest addUserToCourseRequest)
+        public async Task<IActionResult> AddUsersToCourse([FromBody] UpdateCourseUsersRequest addUsersReq)
         {
-            if (!_authorizationService.IsAuthorizedToCourse(addUserToCourseRequest.CourseId.ToString(), User))
+            if (!await _authorizationService.IsAuthorizedToCourse(addUsersReq.CourseId, User))
             {
                 return Forbid();
             }
-            await _courseService.AddUserToCourse(addUserToCourseRequest.CourseId, addUserToCourseRequest.UserEmail);
+
+            await _courseService.AddUsersToCourse(int.Parse(addUsersReq.CourseId), addUsersReq.UserEmails);
             return Ok();
         }
 
-        [HttpPost("addusers")]
+        [HttpPost("removeusers")]
         [Authorize(Policy = "Admins&Instructors")]
-        public async Task<IActionResult> AddUsersToCourse([FromForm] AddUsersRequest addUsersReq)
+        public async Task<IActionResult> RemoveUsersFromCourse([FromBody] UpdateCourseUsersRequest removeUsersReq)
         {
-            if (!_authorizationService.IsAuthorizedToCourse(addUsersReq.CourseId, User))
+            if (!await _authorizationService.IsAuthorizedToCourse(removeUsersReq.CourseId, User))
             {
                 return Forbid();
             }
-            var userEmails = await ReadFileAsync(addUsersReq.Users);
-            await _courseService.AddUsersToCourse(Int32.Parse(addUsersReq.CourseId), userEmails);
+
+            await _courseService.RemoveUsersFromCourse(int.Parse(removeUsersReq.CourseId), removeUsersReq.UserEmails);
             return Ok();
         }
 
@@ -87,25 +89,13 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> DeleteCourse(string courseId)
         {
+            if (!await _authorizationService.IsAuthorizedToCourse(courseId, User))
+            {
+                return Forbid();
+            }
+
             await _courseService.DeleteCourse(courseId);
             return Ok();
-        }
-
-        public static async Task<List<string>> ReadFileAsync(IFormFile file)
-        {
-            var usersEmails = new List<string>();
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var user = await reader.ReadLineAsync();
-                    if (!string.IsNullOrEmpty(user))
-                    {
-                        usersEmails.Add(user);
-                    }
-                }
-            }
-            return usersEmails;
         }
     }
 }

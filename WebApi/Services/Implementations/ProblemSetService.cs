@@ -6,7 +6,8 @@ namespace WebApi.Services.Implementations
 {
     public class ProblemSetService : IProblemSetService
     {
-        IProblemSetStore _problemSetStore;
+        private readonly IProblemSetStore _problemSetStore;
+
         public ProblemSetService(IProblemSetStore problemSetStore)
         {
             _problemSetStore = problemSetStore;
@@ -27,9 +28,9 @@ namespace WebApi.Services.Implementations
             await _problemSetStore.AddProblemToProblemSet(problemSetId, problemId);
         }
 
-        public bool IsOwner(string problemSetId, string userEmail)
+        public async Task<bool> IsOwner(string problemSetId, string userEmail)
         {
-            return _problemSetStore.IsOwner(problemSetId, userEmail);
+            return await _problemSetStore.IsOwner(problemSetId, userEmail);
         }
 
         public async Task UpdateProblemSet(ProblemSet problemSet)

@@ -9,7 +9,6 @@ namespace WebApi.Store.Sql
     public class SqlTestStore : ITestStore
     {
         private readonly GlobalMapper _mapper;
-
         private readonly IServiceScopeFactory scopeFactory;
 
         public SqlTestStore(IServiceScopeFactory scopeFactory, GlobalMapper _mapper)
@@ -23,8 +22,10 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var testEntities = db.Tests.Where(x => x.ProblemId == Int32.Parse(problemId)).ToList();
-                return testEntities.Select(entity => _mapper.ToTest(entity)).ToList();
+                return db.Tests
+                    .Where(x => x.ProblemId == int.Parse(problemId))
+                    .Select(entity => _mapper.ToTest(entity))
+                    .ToList();
             }
         }
 
@@ -34,7 +35,7 @@ namespace WebApi.Store.Sql
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var entity = _mapper.ToTestEntity(test);
-                db.Tests.Add(entity);
+                await db.Tests.AddAsync(entity);
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {
@@ -51,11 +52,11 @@ namespace WebApi.Store.Sql
                 using var transaction = db.Database.BeginTransaction();
                 try
                 {
-                    foreach (var test in tests)
+                    if (tests != null && tests.Count > 0)
                     {
-                        var entity = _mapper.ToTestEntity(test);
-                        db.Tests.Add(entity);
+                        await db.Tests.AddRangeAsync(tests.Select(test => _mapper.ToTestEntity(test)).ToArray());
                     }
+
                     await db.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -72,8 +73,8 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var TestEntities = db.Tests.Where(x => x.ProblemId == Int32.Parse(problemId));
-                db.Tests.RemoveRange(TestEntities);
+                var testEntities = db.Tests.Where(x => x.ProblemId == int.Parse(problemId));
+                db.Tests.RemoveRange(testEntities);
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {

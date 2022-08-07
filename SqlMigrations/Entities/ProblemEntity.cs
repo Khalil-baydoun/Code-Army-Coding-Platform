@@ -31,18 +31,17 @@ namespace SqlMigrations.Entities
 
         public string SampleOutput { get; set; }
 
+        public int TimeLimitInMilliseconds { get; set; }
+
+        public int MemoryLimitInKiloBytes { get; set; }
+
         public string Tags { get; set; }
 
         public string Hints { get; set; }
 
         public int Difficulty { get; set; }
 
-        [ForeignKey("ProblemSet")]
-        public int ProblemSetId { get; set; }
-
         public bool IsPublic { get; set; }
-
-        public ProblemSetEntity ProblemSet { get; set; }
 
         public ICollection<TestEntity> Tests { get; set; }
     }

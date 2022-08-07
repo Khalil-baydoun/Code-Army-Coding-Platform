@@ -9,18 +9,13 @@ namespace SqlMigrations.Entities
     {
         public const string TableName = "WaReports";
 
-        [Key]
-        public int Id { get; set; }
-
-        [ForeignKey("Report")]
-        public int ReportId { get; set; }
+        [Key, ForeignKey("SubmissionStatistics")]
+        public int SubmissionStatisticsId { get; set; }
 
         public string ActualOutput { get; set; }
 
         public string ExpectedOutput { get; set; }
 
-        public string Input { get; set; }  
-
-        public virtual ReportEntity Report {get; set;}     
+        public string Input { get; set; }
     }
 }

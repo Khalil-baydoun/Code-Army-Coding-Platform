@@ -4,8 +4,7 @@ namespace DataContracts.Statistics
 {
     public class ProblemSetStatistics
     {
-        public List<ProblemStatistics> ProblemsStatistics { get; set; }
-
+        public int ProblemSetId { get; set; }
         public List<UserProblemSetStatistics> UserStatistics { get; set; }
     }
 }

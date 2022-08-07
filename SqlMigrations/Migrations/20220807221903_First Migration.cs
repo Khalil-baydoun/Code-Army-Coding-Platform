@@ -26,6 +26,21 @@ namespace SqlMigrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WaReports",
+                columns: table => new
+                {
+                    SubmissionStatisticsId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ActualOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpectedOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Input = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WaReports", x => x.SubmissionStatisticsId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Courses",
                 columns: table => new
                 {
@@ -44,6 +59,36 @@ namespace SqlMigrations.Migrations
                         principalTable: "Users",
                         principalColumn: "Email",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Problems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AuthorEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    GeneralDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InputDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OutputDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SampleInput = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SampleOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TimeLimitInMilliseconds = table.Column<int>(type: "int", nullable: false),
+                    MemoryLimitInKiloBytes = table.Column<int>(type: "int", nullable: false),
+                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Hints = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Difficulty = table.Column<int>(type: "int", nullable: false),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Problems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Problems_Users_AuthorEmail",
+                        column: x => x.AuthorEmail,
+                        principalTable: "Users",
+                        principalColumn: "Email");
                 });
 
             migrationBuilder.CreateTable(
@@ -99,47 +144,12 @@ namespace SqlMigrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Problems",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AuthorEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    GeneralDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    InputDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OutputDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SampleInput = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SampleOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Hints = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Difficulty = table.Column<int>(type: "int", nullable: false),
-                    ProblemSetId = table.Column<int>(type: "int", nullable: false),
-                    IsPublic = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Problems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Problems_ProblemSets_ProblemSetId",
-                        column: x => x.ProblemSetId,
-                        principalTable: "ProblemSets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Problems_Users_AuthorEmail",
-                        column: x => x.AuthorEmail,
-                        principalTable: "Users",
-                        principalColumn: "Email");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Solutions",
                 columns: table => new
                 {
                     ProblemId = table.Column<int>(type: "int", nullable: false),
                     SourceCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProgLanguage = table.Column<int>(type: "int", nullable: false)
+                    ProgLanguage = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -161,8 +171,6 @@ namespace SqlMigrations.Migrations
                     UserEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ProblemId = table.Column<int>(type: "int", nullable: false),
                     Verdict = table.Column<int>(type: "int", nullable: false),
-                    TimeTakenInMilliseconds = table.Column<long>(type: "bigint", nullable: false),
-                    MemoryTakenInKiloBytes = table.Column<long>(type: "bigint", nullable: false),
                     SourceCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProgrammingLanguage = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -205,43 +213,25 @@ namespace SqlMigrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reports",
+                name: "ProblemSetProblem",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SubmissionStatisticsId = table.Column<int>(type: "int", nullable: false),
-                    WaReportId = table.Column<int>(type: "int", nullable: false)
+                    ProblemId = table.Column<int>(type: "int", nullable: false),
+                    ProblemSetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Reports", x => x.Id);
+                    table.PrimaryKey("PK_ProblemSetProblem", x => new { x.ProblemId, x.ProblemSetId });
                     table.ForeignKey(
-                        name: "FK_Reports_SubmissionStatistics_SubmissionStatisticsId",
-                        column: x => x.SubmissionStatisticsId,
-                        principalTable: "SubmissionStatistics",
+                        name: "FK_ProblemSetProblem_Problems_ProblemId",
+                        column: x => x.ProblemId,
+                        principalTable: "Problems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WaReports",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportId = table.Column<int>(type: "int", nullable: false),
-                    ActualOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpectedOutput = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Input = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WaReports", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WaReports_Reports_ReportId",
-                        column: x => x.ReportId,
-                        principalTable: "Reports",
+                        name: "FK_ProblemSetProblem_ProblemSets_ProblemSetId",
+                        column: x => x.ProblemSetId,
+                        principalTable: "ProblemSets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -262,8 +252,8 @@ namespace SqlMigrations.Migrations
                 column: "AuthorEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Problems_ProblemSetId",
-                table: "Problems",
+                name: "IX_ProblemSetProblem_ProblemSetId",
+                table: "ProblemSetProblem",
                 column: "ProblemSetId");
 
             migrationBuilder.CreateIndex(
@@ -275,11 +265,6 @@ namespace SqlMigrations.Migrations
                 name: "IX_ProblemSets_CourseId",
                 table: "ProblemSets",
                 column: "CourseId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reports_SubmissionStatisticsId",
-                table: "Reports",
-                column: "SubmissionStatisticsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubmissionStatistics_ProblemId",
@@ -295,12 +280,6 @@ namespace SqlMigrations.Migrations
                 name: "IX_Tests_ProblemId",
                 table: "Tests",
                 column: "ProblemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_WaReports_ReportId",
-                table: "WaReports",
-                column: "ReportId",
-                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -309,7 +288,13 @@ namespace SqlMigrations.Migrations
                 name: "CourseUsers");
 
             migrationBuilder.DropTable(
+                name: "ProblemSetProblem");
+
+            migrationBuilder.DropTable(
                 name: "Solutions");
+
+            migrationBuilder.DropTable(
+                name: "SubmissionStatistics");
 
             migrationBuilder.DropTable(
                 name: "Tests");
@@ -318,16 +303,10 @@ namespace SqlMigrations.Migrations
                 name: "WaReports");
 
             migrationBuilder.DropTable(
-                name: "Reports");
-
-            migrationBuilder.DropTable(
-                name: "SubmissionStatistics");
+                name: "ProblemSets");
 
             migrationBuilder.DropTable(
                 name: "Problems");
-
-            migrationBuilder.DropTable(
-                name: "ProblemSets");
 
             migrationBuilder.DropTable(
                 name: "Courses");

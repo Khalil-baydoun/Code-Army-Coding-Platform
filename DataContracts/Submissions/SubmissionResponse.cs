@@ -7,26 +7,22 @@ namespace DataContracts.Submissions
     {
         public Verdict Verdict { get; set; }
 
-        public long TimeTakenInMilliseconds { get; set; }
-
-        public long MemoryTakenInKiloBytes { get; set; }
-
         public int TestsPassed { get; set; }
 
         public WrongAnswerReport WaReport { get; set; }
-
-        public Report.Report Report {get; set;}
     }
 
+    // Values according to ideone API
     public enum Verdict
     {
-        Accepted,
-        WrongAnswer,
-        CompilationError,
-        RuntimeError,
-        MemoryLimitExceeded,
-        TimeLimitExceeded,
-        InQueue,
-        ForbiddenKeyword
+        Accepted = 15,
+        WrongAnswer = 2,
+        CompilationError = 11,
+        RuntimeError = 12,
+        MemoryLimitExceeded = 17,
+        TimeLimitExceeded = 13,
+        InternalError = 20,
+        InQueue = 1,
+        ForbiddenKeyword = 0
     }
 }

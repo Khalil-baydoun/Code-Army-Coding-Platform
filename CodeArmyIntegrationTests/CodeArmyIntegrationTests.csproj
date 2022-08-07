@@ -41,4 +41,13 @@
     <ProjectReference Include="..\WebApi\Webapi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\SampleInputAdd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\SampleOutputAdd.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

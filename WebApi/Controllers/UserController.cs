@@ -18,7 +18,6 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AddUser([FromBody] AddUserRequest userReq)
         {
             await _userService.AddUser(userReq);

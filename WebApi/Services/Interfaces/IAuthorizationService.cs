@@ -4,10 +4,12 @@ namespace WebApi.Services.Interfaces
 {
     public interface IAuthorizationService
     {
-        bool IsMemberOfCourse(string courseId, ClaimsPrincipal User);
+        Task<bool> IsMemberOfCourse(string courseId, ClaimsPrincipal User);
 
-        bool IsAuthorizedToCourse(string courseId, ClaimsPrincipal User);
+        Task<bool> IsAuthorizedToCourse(string courseId, ClaimsPrincipal User);
 
-        bool IsAuthorizedToProblem(string problemId, ClaimsPrincipal User);
+        Task<bool> IsOwnerOfProblem(string problemId, ClaimsPrincipal User);
+
+        Task<bool> CanSubmit(string problemId, ClaimsPrincipal User);
     }
 }

@@ -1,6 +1,3 @@
-using DataContracts.Submissions;
-using DataContracts.Tests;
-
 namespace DataContracts.Problems
 {
     public class CreateProblemRequest
@@ -19,11 +16,9 @@ namespace DataContracts.Problems
 
         public string SampleOutput { get; set; }
 
-        // public int TimeLimitInMilliseconds { get; set; } //to factor
-        public int TimeFactor { get; set; }
-        public int MemoryFactor { get; set; }
+        public int TimeLimitInMilliseconds { get; set; }
 
-        //public int MemoryLimitInKiloBytes { get; set; }  //to factor
+        public int MemoryLimitInKiloBytes { get; set; }
 
         public string[] Tags { get; set; }
 
@@ -31,8 +26,6 @@ namespace DataContracts.Problems
 
         public Difficulty Difficulty { get; set; }
 
-        public string CourseId { get; set; }
-
-        public string ProblemSetId { get; set; }
+        public bool IsPublic { get; set; }
     }
 }
