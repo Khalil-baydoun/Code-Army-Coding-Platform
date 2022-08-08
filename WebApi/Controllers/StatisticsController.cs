@@ -1,7 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Utilities;
 using WebApi.Store.Interfaces;
+using static Utilities.HelperFunctions;
+
 
 namespace webapi.Controllers
 {
@@ -22,7 +25,7 @@ namespace webapi.Controllers
         [HttpGet("user")]
         public IActionResult GetUserStatistics()
         {
-            var userEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            var userEmail = GetEmail(User);
             var stats = _statisticsService.GetUserStatistics(userEmail);
             return Ok(stats);
         }
@@ -31,7 +34,7 @@ namespace webapi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> GetCourseStatistics(int courseId)
         {
-            if (!await _authorizationService.IsAuthorizedToCourse(courseId.ToString(), User))
+            if (!await _authorizationService.IsAuthorizedToCourse(courseId.ToString(), GetEmail(User), GetRole(User)))
             {
                 return Forbid();
             }
@@ -43,7 +46,7 @@ namespace webapi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> GetProblemStatistics(int problemId)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(problemId.ToString(), User))
+            if (!await _authorizationService.IsOwnerOfProblem(problemId.ToString(), GetEmail(User), GetRole(User)))
             {
                 return Forbid();
             }

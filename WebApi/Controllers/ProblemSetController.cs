@@ -1,9 +1,9 @@
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using DataContracts.ProblemSets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Utilities.HelperFunctions;
+using Utilities;
 using webapi.Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -14,13 +14,11 @@ namespace WebApi.Controllers
     {
         private readonly IProblemSetService _problemSetService;
         private readonly Services.Interfaces.IAuthorizationService _authorizationService;
-        private readonly ICourseService _courseService;
         private readonly GlobalMapper _mapper;
 
-        public ProblemSetController(Services.Interfaces.IAuthorizationService authorizationService, GlobalMapper mapper, IProblemSetService problemSetService, ICourseService courseService)
+        public ProblemSetController(Services.Interfaces.IAuthorizationService authorizationService, GlobalMapper mapper, IProblemSetService problemSetService)
         {
             _authorizationService = authorizationService;
-            _courseService = courseService;
             _mapper = mapper;
             _problemSetService = problemSetService;
         }
@@ -29,8 +27,8 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddProblemSet([FromBody] AddProblemSetRequest problemSet)
         {
-            problemSet.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
-            if (!await _authorizationService.IsAuthorizedToCourse(problemSet.CourseId.ToString(), User))
+            problemSet.AuthorEmail = GetEmail(User);
+            if (!await IsAuthorizedToCourse(problemSet.CourseId.ToString(), User))
             {
                 return Forbid();
             }
@@ -44,12 +42,12 @@ namespace WebApi.Controllers
         public async Task<IActionResult> UpdateProblemSet(string id, [FromBody] UpdateProblemSetRequest req)
         {
             var ps = _problemSetService.GetProblemSet(id);
-            if (!await _authorizationService.IsAuthorizedToCourse(ps.CourseId.ToString(), User))
+            if (!await IsAuthorizedToCourse(ps.CourseId.ToString(), User))
             {
                 return Forbid();
             }
             var problemSet = _mapper.ToProblemSet(req);
-            problemSet.Id = Int32.Parse(id);
+            problemSet.Id = int.Parse(id);
             problemSet.CourseId = ps.CourseId;
             await _problemSetService.UpdateProblemSet(problemSet);
             return Ok();
@@ -76,12 +74,18 @@ namespace WebApi.Controllers
         public async Task<IActionResult> AddProblemToProblemSet([FromBody] AddProblemToProblemSetRequest addRequest)
         {
             ProblemSet problemSet = _problemSetService.GetProblemSet(addRequest.ProblemSetId.ToString());
-            if (!await _authorizationService.IsAuthorizedToCourse(problemSet.CourseId.ToString(), User))
+            if (!await IsAuthorizedToCourse(problemSet.CourseId.ToString(), User)
+                || ! await _authorizationService.CanAccessProblem(addRequest.ProblemId.ToString(), GetEmail(User)))
             {
                 return Forbid();
             }
             await _problemSetService.AddProblemToProblemSet(addRequest.ProblemSetId, addRequest.ProblemId);
             return Ok();
+        }
+
+        private async Task<bool> IsAuthorizedToCourse(string courseId, ClaimsPrincipal User)
+        {
+            return await _authorizationService.IsAuthorizedToCourse(courseId, GetEmail(User), GetRole(User));
         }
     }
 }

@@ -1,15 +1,14 @@
-using System.Security.Claims;
 
 namespace WebApi.Services.Interfaces
 {
     public interface IAuthorizationService
     {
-        Task<bool> IsMemberOfCourse(string courseId, ClaimsPrincipal User);
+        Task<bool> IsMemberOfCourse(string courseId, string userEmail, string role);
 
-        Task<bool> IsAuthorizedToCourse(string courseId, ClaimsPrincipal User);
+        Task<bool> IsAuthorizedToCourse(string courseId, string userEmail, string role);
 
-        Task<bool> IsOwnerOfProblem(string problemId, ClaimsPrincipal User);
+        Task<bool> IsOwnerOfProblem(string problemId, string userEmail, string role);
 
-        Task<bool> CanSubmit(string problemId, ClaimsPrincipal User);
+        Task<bool> CanAccessProblem(string problemId, string userEmail);
     }
 }

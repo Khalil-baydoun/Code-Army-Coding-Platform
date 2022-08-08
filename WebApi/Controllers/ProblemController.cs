@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services.Interfaces;
 using DataContracts.Submissions;
+using static Utilities.HelperFunctions;
 using Webapi.JudgingQueue;
+using Utilities;
 
 namespace WebApi.Controllers
 {
@@ -41,7 +43,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> AddProblem([FromBody] CreateProblemRequest req)
         {
             var problem = _mapper.ToProblem(req);
-            problem.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            problem.AuthorEmail = GetEmail(User);
             var id = await _problemSevice.AddProblem(problem);
             return Ok(new { ProblemId = id.ToString() });
         }
@@ -74,7 +76,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public IActionResult GetProblems()
         {
-            var problems = _problemSevice.GetProblems(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value);
+            var problems = _problemSevice.GetProblems(GetEmail(User));
             return Ok(problems);
         }
 
@@ -82,13 +84,13 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> UpdateProblem(string id, [FromBody] UpdateProblemRequest req)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(id, User))
+            if (!await IsOwnerOfProblem(id, User))
             {
                 return Forbid();
             }
             var problem = _mapper.ToProblem(req);
             problem.Id = int.Parse(id);
-            problem.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            problem.AuthorEmail = GetEmail(User);
             await _problemSevice.UpdateProblem(problem);
             return Ok();
         }
@@ -98,14 +100,14 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddSolution([FromForm] SolutionRequest solutionRequest)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(solutionRequest.ProblemId, User))
+            if (!await IsOwnerOfProblem(solutionRequest.ProblemId, User))
             {
                 return Forbid();
             }
             var solution = await ToSubmissionRequest(solutionRequest);
 
             solution.IsSolution = true;
-            solution.UserEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            solution.UserEmail = GetEmail(User);
             await _queue.EnqueueSubmission(solution);
             return Ok();
         }
@@ -113,7 +115,7 @@ namespace WebApi.Controllers
         [HttpGet("solution/{problemId}")]
         public async Task<IActionResult> GetSolution(string problemId, [FromQuery] string progLang)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(problemId, User))
+            if (!await IsOwnerOfProblem(problemId, User))
             {
                 return Forbid();
             }
@@ -143,6 +145,11 @@ namespace WebApi.Controllers
 
             }
             return result;
+        }
+
+        private async Task<bool> IsOwnerOfProblem(string problemId, ClaimsPrincipal User)
+        {
+            return await _authorizationService.IsOwnerOfProblem(problemId, GetEmail(User), GetRole(User));
         }
     }
 }

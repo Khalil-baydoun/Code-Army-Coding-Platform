@@ -2,7 +2,9 @@ using System.Security.Claims;
 using DataContracts.Courses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Utilities;
 using webapi.Services.Interfaces;
+using static Utilities.HelperFunctions;
 
 namespace WebApi.Controllers
 {
@@ -27,7 +29,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddCourse([FromBody] Course course)
         {
-            course.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            course.AuthorEmail = GetEmail(User);
             var id = await _courseService.AddCourse(course);
             return Ok(new { CourseId = id.ToString() });
         }
@@ -36,13 +38,14 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> UpdateCourse(string id, [FromBody] UpdateCourseRequest req)
         {
-            if (!await _authorizationService.IsAuthorizedToCourse(id, User))
+            if (!await IsAuthorizedToCourse(id, User))
             {
                 return Forbid();
             }
+
             var course = _mapper.ToCourse(req);
             course.Id = int.Parse(id);
-            course.AuthorEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            course.AuthorEmail = GetEmail(User);
             await _courseService.UpdateCourse(course);
             return Ok();
         }
@@ -51,7 +54,7 @@ namespace WebApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetCourse(string courseId)
         {
-            if (!await _authorizationService.IsMemberOfCourse(courseId, User))
+            if (!await _authorizationService.IsMemberOfCourse(courseId, GetEmail(User), GetRole(User)))
             {
                 return Forbid();
             }
@@ -63,7 +66,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddUsersToCourse([FromBody] UpdateCourseUsersRequest addUsersReq)
         {
-            if (!await _authorizationService.IsAuthorizedToCourse(addUsersReq.CourseId, User))
+            if (!await IsAuthorizedToCourse(addUsersReq.CourseId, User))
             {
                 return Forbid();
             }
@@ -76,7 +79,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> RemoveUsersFromCourse([FromBody] UpdateCourseUsersRequest removeUsersReq)
         {
-            if (!await _authorizationService.IsAuthorizedToCourse(removeUsersReq.CourseId, User))
+            if (!await IsAuthorizedToCourse(removeUsersReq.CourseId, User))
             {
                 return Forbid();
             }
@@ -89,13 +92,18 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> DeleteCourse(string courseId)
         {
-            if (!await _authorizationService.IsAuthorizedToCourse(courseId, User))
+            if (!await IsAuthorizedToCourse(courseId, User))
             {
                 return Forbid();
             }
 
             await _courseService.DeleteCourse(courseId);
             return Ok();
+        }
+
+        private async Task<bool> IsAuthorizedToCourse(string courseId, ClaimsPrincipal User)
+        {
+            return await _authorizationService.IsAuthorizedToCourse(courseId, GetEmail(User), GetEmail(User));
         }
     }
 }

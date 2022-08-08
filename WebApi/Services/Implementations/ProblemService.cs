@@ -8,6 +8,7 @@ namespace WebApi.Services.Implementations
     public class ProblemService : IProblemService
     {
         IProblemStore _problemStore;
+
         public ProblemService(IProblemStore problemStore)
         {
             _problemStore = problemStore;
@@ -72,9 +73,9 @@ namespace WebApi.Services.Implementations
             return await _problemStore.IsOwner(problemId, userEmail);
         }
 
-        public async Task<bool> CanSubmit(string problemId, string userEmail)
+        public async Task<bool> CanAccessProblem(string problemId, string userEmail)
         {
-            return await _problemStore.CanSubmit(problemId, userEmail);
+            return await _problemStore.CanAccessProblem(problemId, userEmail);
         }
     }
 }

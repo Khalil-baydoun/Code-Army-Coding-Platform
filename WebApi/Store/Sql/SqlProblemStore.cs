@@ -136,13 +136,13 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public async Task<bool> CanSubmit(string problemId, string userEmail)
+        public async Task<bool> CanAccessProblem(string problemId, string userEmail)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-                // if problem is public or user is owner of problem, then user can submit
+                // if problem is public or user is owner of problem, then user can access
                 if (await db.Problems
                     .Where(p => p.Id == int.Parse(problemId) && (userEmail.Equals(p.AuthorEmail) || p.IsPublic))
                     .AnyAsync())

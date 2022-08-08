@@ -2,9 +2,9 @@
 using DataContracts.Submissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using webapi.Services.Interfaces;
 using Webapi.JudgingQueue;
 using WebApi.Services.Interfaces;
+using static Utilities.HelperFunctions;
 using WebApi.Store.Interfaces;
 
 namespace webapi.Controllers
@@ -37,13 +37,13 @@ namespace webapi.Controllers
         [Authorize]
         public async Task<IActionResult> Submit([FromBody] SubmissionRequest submissionRequest)
         {
-            if (!await _authorizationService.CanSubmit(submissionRequest.ProblemId, User))
+            if (!await _authorizationService.CanAccessProblem(submissionRequest.ProblemId, GetEmail(User)))
             {
                 return Forbid();
             }
 
             submissionRequest.IsSolution = false;
-            submissionRequest.UserEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            submissionRequest.UserEmail = GetEmail(User);
 
             await _queue.EnqueueSubmission(submissionRequest);
             return Ok();
@@ -53,7 +53,7 @@ namespace webapi.Controllers
         [Authorize]
         public IActionResult GetSubmissions(int offset, int limit)
         {
-            var email = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
+            var email = GetEmail(User);
             var resp = _statisticsService.GetUserSubmissions(email, offset, limit + 1);
             if (resp.Submissions.Count == limit + 1)
             {

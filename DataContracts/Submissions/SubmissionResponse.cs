@@ -1,4 +1,3 @@
-using DataContracts.Tests;
 using DataContracts.Report;
 
 namespace DataContracts.Submissions

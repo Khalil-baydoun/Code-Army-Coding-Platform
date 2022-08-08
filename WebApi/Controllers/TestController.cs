@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services.Interfaces;
 
+using static Utilities.HelperFunctions;
 namespace WebApi.Controllers
 {
     [ApiController]
@@ -25,7 +26,7 @@ namespace WebApi.Controllers
         [HttpGet("{problemId}")]
         public async Task<IActionResult> GetTests(string problemId)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(problemId, GetEmail(User), GetRole(User))) // instructor cannot get tests of problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -37,7 +38,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTest([FromBody] TestUnit test)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(test.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(test.ProblemId, GetEmail(User), GetRole(User))) // instructor cannot upload tests to problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -49,7 +50,7 @@ namespace WebApi.Controllers
         [HttpPost("uploadTests")]
         public async Task<IActionResult> UploadTests([FromForm] UploadTestsRequest uploadTestsRequest)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(uploadTestsRequest.ProblemId, User)) // instructor cannot upload tests to problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(uploadTestsRequest.ProblemId, GetEmail(User), GetRole(User))) // instructor cannot upload tests to problem that he/she is not the author of
             {
                 return Forbid();
             }
@@ -62,7 +63,7 @@ namespace WebApi.Controllers
         [HttpDelete("{problemId}")]
         public async Task<IActionResult> DeleteProblemTests(string problemId)
         {
-            if (!await _authorizationService.IsOwnerOfProblem(problemId, User)) // instructor cannot get tests of problem that he/she is not the author of
+            if (!await _authorizationService.IsOwnerOfProblem(problemId, GetEmail(User), GetRole(User))) // instructor cannot get tests of problem that he/she is not the author of
             {
                 return Forbid();
             }

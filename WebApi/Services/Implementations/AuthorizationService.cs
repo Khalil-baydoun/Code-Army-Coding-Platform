@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using webapi.Services.Interfaces;
 using WebApi.Services.Interfaces;
 
@@ -15,39 +14,35 @@ namespace WebApi.Services.Implementations
             _courseService = courseService;
         }
 
-        public async Task<bool> IsAuthorizedToCourse(string courseId, ClaimsPrincipal User)
+        public async Task<bool> IsAuthorizedToCourse(string courseId, string userEmail, string role)
         {
-            if (User.IsInRole("Instructor"))
+            if (role.Equals("Instructor"))
             {
-                var userEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
                 return await _courseService.IsOwner(courseId, userEmail);
             }
 
             return true;
         }
 
-        public async Task<bool> IsOwnerOfProblem(string problemId, ClaimsPrincipal User)
+        public async Task<bool> IsOwnerOfProblem(string problemId, string userEmail, string role)
         {
-            if (User.IsInRole("Instructor"))
+            if (role.Equals("Instructor"))
             {
-                var userEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
                 return await _problemService.IsOwner(problemId, userEmail);
             }
 
             return true;
         }
 
-        public async Task<bool> CanSubmit(string problemId, ClaimsPrincipal User)
+        public async Task<bool> CanAccessProblem(string problemId, string userEmail)
         {
-            var userEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
-            return await _problemService.CanSubmit(problemId, userEmail);
+            return await _problemService.CanAccessProblem(problemId, userEmail);
         }
 
-        public async Task<bool> IsMemberOfCourse(string courseId, ClaimsPrincipal User)
+        public async Task<bool> IsMemberOfCourse(string courseId, string userEmail, string role)
         {
-            if (!User.IsInRole("Admin"))
+            if (!role.Equals("Admin"))
             {
-                var userEmail = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Email).Value;
                 return _courseService.IsMember(courseId, userEmail) || await _courseService.IsOwner(courseId, userEmail);
             }
 

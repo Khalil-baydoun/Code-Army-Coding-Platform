@@ -2,6 +2,7 @@ using System.Security.Claims;
 using DataContracts.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Utilities;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -28,7 +29,7 @@ namespace WebApi.Controllers
         [Authorize]
         public IActionResult GetRole()
         {
-            var role = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Role).Value;
+            var role = HelperFunctions.GetRole(User);
             return Ok(new { Role = role });
         }
     }

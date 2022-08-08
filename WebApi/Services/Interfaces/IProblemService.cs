@@ -16,7 +16,7 @@ namespace WebApi.Services.Interfaces
 
         Task<bool> IsOwner(string problemId, string userEmail);
 
-        Task<bool> CanSubmit(string problemId, string userEmail);
+        Task<bool> CanAccessProblem(string problemId, string userEmail);
 
         Task DeleteProblem(string problemId);
     }
