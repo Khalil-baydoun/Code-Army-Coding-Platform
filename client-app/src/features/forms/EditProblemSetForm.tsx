@@ -1,3 +1,4 @@
+import { date } from "date-fns/locale/zh-TW/index.js";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useState } from "react";
 import { Field, Form as FinalForm } from "react-final-form";
@@ -15,7 +16,7 @@ import TextInput from "../../app/common/form/TextInput";
 import { tags } from "../../app/common/options/selectOptions";
 import { combineDateAndTime } from "../../app/common/util/util";
 import {
-  IDueDate,
+  IProblemSet,
   ProblemSetFormValues,
 } from "../../app/models/courseProblemSet";
 import { RootStoreContext } from "../../app/stores/rootStore";
@@ -35,43 +36,24 @@ const EditProblemSetForm: React.FC = () => {
   const {
     updateProblemSet,
     submitting,
-    courseGroups,
   } = rootStore.courseProblemSetStore;
 
   const [problemSet, setProblemSet] = useState<any>(new ProblemSetFormValues());
   const [showMessage, setShowMessage] = useState(false);
   useEffect(() => {
     if (rootStore.courseProblemSetStore.problemSet) {
-      //console.log(rootStore.courseProblemSetStore.problemSet)
       let ps:any = { ...rootStore.courseProblemSetStore.problemSet };
-      ps.dueDates.map((x:any) => {
-        ps["DueDate" + x.groupId] = x.dueDate;
-        ps["DueTime" + x.groupId] = x.dueDate;
-    })
       setProblemSet(ps);
     }
   }, [rootStore.courseProblemSetStore.problemSet]);
 
   const handleFinalFormSubmit = (values: any) => {
     const { ...problemSet } = values;
-    courseGroups?.forEach((element) => {
-      if ("DueDate" + element.Id in values) {
-        const dateAndTime = combineDateAndTime(
-          values["DueDate" + element.Id],
-          values["DueTime" + element.Id]
-        );
-        problemSet.dueDates = problemSet.dueDates.filter(
-          (item: IDueDate) => item.groupId != parseInt(element.Id)
-        );
-        problemSet.dueDates.push({
-          dueDate: dateAndTime,
-          groupId: parseInt(element.Id),
-          problemSetId: problemSet.Id,
-        });
-        delete problemSet["DueDate" + element.Id];
-        delete problemSet["DueTime" + element.Id];
-      }
-    });
+    // const dateAndTime = combineDateAndTime(
+    // values["DueDate"],
+    // values["DueDate"]);
+    problemSet.DueDate = new Date(values["DueDate"]);
+    console.log(problemSet);
     updateProblemSet(problemSet).then(() => setShowMessage(true));
   };
 
@@ -112,52 +94,15 @@ const EditProblemSetForm: React.FC = () => {
               value={problemSet.Prerequisites.join(",")}
               component={SelectInputMultiple}
             />
-            {courseGroups?.map((x) => (
-              <Segment key={x.Id}>
-                <Label style={{ marginBottom: "10px" }}>
-                  {x.Name + " group due date"}
-                </Label>
-                <Form.Group widths="equal">
-                  {console.log(x.Id)}
-                  {console.log("problem set", { ...problemSet })}
-                  {/* {console.log(
-                    problemSet.dueDates.find(
-                      (ps) => ps.groupId.toString() == x.Id.toString()
-                    )?.dueDate
-                  )} */}
-                  <Field
-                    name={"DueDate" + x.Id}
-                    label={x.Name + " group due date"}
-                    placeholder="Keep this empty if there is no due date for this group"
-                    // value={
-                    //   problemSet.dueDates.find(
-                    //     (ps) => ps.groupId.toString() == x.Id.toString()
-                    //   ) &&
-                    //   problemSet.dueDates.find(
-                    //     (ps) => ps.groupId.toString() == x.Id.toString()
-                    //   )?.dueDate
-                    // }
-                    date={true}
-                    component={DateInput}
-                  />
-                  <Field
-                    name={"DueTime" + x.Id}
-                    label={x.Name + " group due time"}
-                    placeholder="Keep this empty if there is no due date for this group"
-                    // value={
-                    //   problemSet.dueDates.find(
-                    //     (ps) => ps.groupId.toString() == x.Id.toString()
-                    //   ) &&
-                    //   problemSet.dueDates.find(
-                    //     (ps) => ps.groupId.toString() == x.Id.toString()
-                    //   )?.dueDate
-                    // }
-                    time={true}
-                    component={DateInput}
-                  />
-                </Form.Group>
-              </Segment>
-            ))}
+            <Field
+              value={problemSet.DueDate}
+              name={"DueDate"}
+              label={"due date"}
+              placeholder="Keep this empty if there is no due date for this group"
+              date={true}
+              time={true}
+              component={DateInput}
+            />
             <Button
               disabled={invalid || pristine}
               loading={submitting}

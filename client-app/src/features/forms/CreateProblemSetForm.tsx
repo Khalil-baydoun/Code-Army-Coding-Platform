@@ -38,10 +38,8 @@ const CreateProblemSetForm: React.FC<RouteComponentProps<DetailParams>> = ({
   const rootStore = useContext(RootStoreContext);
   const {
     getCourse,
-    getCourseGroups,
     loadingInitial,
     course,
-    courseGroups,
     createProblemSet,
     submitting,
   } = rootStore.courseProblemSetStore;
@@ -49,7 +47,6 @@ const CreateProblemSetForm: React.FC<RouteComponentProps<DetailParams>> = ({
   const [problemSet, setProblemSet] = useState(new ProblemSetFormValues());
   useEffect(() => {
     getCourse(match.params.courseId);
-    getCourseGroups(match.params.courseId);
     setProblemSet(new ProblemSetFormValues());
   }, [setProblemSet, getCourse, match.params.courseId]);
 
@@ -61,19 +58,6 @@ const CreateProblemSetForm: React.FC<RouteComponentProps<DetailParams>> = ({
       ...problemSet,
     };
     delete newProblemSet.Id;
-    courseGroups?.forEach((element) => {
-      if ("DueDate" + element.Id in values) {
-        const dateAndTime = combineDateAndTime(
-          values["DueDate" + element.Id],
-          values["DueTime" + element.Id]
-        );
-        newProblemSet.dueDates.push({
-          dueDate: dateAndTime,
-          groupId: parseInt(element.Id),
-          problemSetId: 0,
-        });
-      }
-    });
     createProblemSet(newProblemSet);
   };
 
@@ -115,32 +99,27 @@ const CreateProblemSetForm: React.FC<RouteComponentProps<DetailParams>> = ({
               value={problemSet.Prerequisites.join(",")}
               component={SelectInputMultiple}
             />
-            {courseGroups?.map((x) => (
-              <Segment key={x.Id}>
+              <Segment >
                 <Label style={{ marginBottom: "10px" }}>
-                  {x.Name + " group due date"}
+                  {" group due date"}
                 </Label>
                 <Form.Group widths="equal">
                   <Field
-                    name={"DueDate" + x.Id}
-                    label={x.Name + " group due date"}
+                    name={"DueDate"}
+                    label={" group due date"}
                     placeholder="Keep this empty if there is no due date for this group"
-                    //value={}
                     date={true}
                     component={DateInput}
                   />
                   <Field
-                    name={"DueTime" + x.Id}
-                    label={x.Name + " group due time"}
+                    name={"DueTime"}
+                    label={"group due time"}
                     placeholder="Keep this empty if there is no due date for this group"
-                    //value={}
                     time={true}
                     component={DateInput}
                   />
                 </Form.Group>
               </Segment>
-            ))}
-
             <Button
               disabled={invalid || pristine}
               loading={submitting}

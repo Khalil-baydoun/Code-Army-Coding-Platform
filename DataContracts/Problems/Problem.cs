@@ -28,8 +28,6 @@ namespace DataContracts.Problems
 
         public Difficulty Difficulty { get; set; }
 
-        public virtual List<Comment> Comments { get; set; }
-
         public string[] Hints { get; set; }
 
         public bool IsPublic { get; set; }

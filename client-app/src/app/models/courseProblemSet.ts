@@ -13,7 +13,9 @@ export interface IKeyValuePair {
 }
 
 export interface ICourseStatistics {
+  CourseId : string;
   UserStatistics: IUserStatistics[];
+  ProblemSetStatistics : IProblemSetStatistics [];
 }
 
 export interface IUserSubmissions {
@@ -31,8 +33,6 @@ export interface ISubmission {
   UserEmail: string;
   ProblemId: number;
   Verdict: number;
-  TimeTakenInMilliseconds: number;
-  MemoryTakenInKiloBytes: number;
   SourceCode: string;
   SubmittedAt: Date;
   ProgrammingLanguage: number;
@@ -83,7 +83,7 @@ export interface IProblemSet {
   Problems: IProblemSummary[];
   Prerequisites: string[];
   CourseId: string;
-  dueDates: IDueDate[];
+  DueDate: Date;
 }
 
 export interface IProblemSetFormValues extends Partial<IProblemSet> {}
@@ -96,7 +96,7 @@ export class ProblemSetFormValues {
   Problems: IProblemSummary[] = [];
   CourseId: string = "";
   Prerequisites: string[] = [];
-  dueDates: IDueDate[] = [];
+  DueDate: Date = new Date();
   constructor(init?: Partial<ProblemSetFormValues>) {
     Object.assign(this, init);
   }
@@ -121,8 +121,8 @@ export interface IGroup {
   Id: string;
 }
 
-export interface IDueDate {
-  groupId: number;
-  dueDate: Date;
-  problemSetId: number;
+
+export interface IAddUsersToCourseRequest {
+  courseId: string,
+  userEmails: string[]
 }

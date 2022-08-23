@@ -20,7 +20,6 @@ import {
 } from "semantic-ui-react";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { RootStoreContext } from "../../app/stores/rootStore";
-import CommentForm from "../forms/CommentForm";
 import EditProblemForm from "../forms/EditProblemForm";
 import SolutionUploadForm from "../forms/SolutionUploadForm";
 import SubmitForm from "../forms/SubmitForm";
@@ -43,8 +42,6 @@ const ProblemDetails: React.FC<RouteComponentProps<DetailParams>> = ({
     problem,
     loadProblem,
     loadingInitial,
-    createHubConnection,
-    stopHubConnection,
   } = rootStore.problemStore;
   useEffect(() => {
     loadProblem(
@@ -52,17 +49,13 @@ const ProblemDetails: React.FC<RouteComponentProps<DetailParams>> = ({
       match.params.courseId,
       match.params.problemSetId
     );
-    createHubConnection();
     return () => {
-      stopHubConnection();
     };
   }, [
     match.params.problemId,
     match.params.courseId,
     match.params.problemSetId,
     loadProblem,
-    createHubConnection,
-    stopHubConnection,
   ]);
 
   if (loadingInitial) return <LoadingComponent />;
@@ -97,13 +90,13 @@ const ProblemDetails: React.FC<RouteComponentProps<DetailParams>> = ({
             <GridRow className="problemRow" style={{ fontSize: "16px" }}>
               <GridColumn>
                 <h3>Input:</h3>
-                <p>{problem.IDescription}</p>
+                <p>{problem.InputDescription}</p>
               </GridColumn>
             </GridRow>
             <GridRow className="problemRow" style={{ fontSize: "16px" }}>
               <GridColumn>
                 <h3>Output:</h3>
-                <p>{problem.ODescription}</p>
+                <p>{problem.OutputDescription}</p>
               </GridColumn>
             </GridRow>
 
@@ -223,7 +216,6 @@ const ProblemDetails: React.FC<RouteComponentProps<DetailParams>> = ({
       },
       render: () => (
         <Tab.Pane>
-          <CommentForm />
         </Tab.Pane>
       ),
     },

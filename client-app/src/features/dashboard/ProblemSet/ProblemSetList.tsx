@@ -35,6 +35,7 @@ const ProblemSetList: React.FC<RouteComponentProps<DetailParams>> = ({
   return (
     <Fragment>
       <div>
+        <>{console.log(problemSetRegistry)}</>
         <Header
           as="h2"
           icon="student"

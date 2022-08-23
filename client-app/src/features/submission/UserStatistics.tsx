@@ -3,11 +3,10 @@ import React, { Fragment, useContext, useEffect } from "react";
 import { PieChart } from "react-minimal-pie-chart";
 import { Grid, GridColumn, GridRow, Header, Table } from "semantic-ui-react";
 import {
-  COLORS,
   pieData,
   verdicts,
-  verdictsSummary,
 } from "../../app/common/util/commanData";
+import { getLabels, getPieData } from "../../app/common/util/util";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { IUserStatistics } from "../../app/models/courseProblemSet";
 import { RootStoreContext } from "../../app/stores/rootStore";
@@ -25,17 +24,8 @@ export function getData(userStats: IUserStatistics) {
       verdictsCnt.set(verdict.Key, verdict.Value);
     }
   });
-  for (let i = 0; i < verdicts.length; i++) {
-    if (verdictsCnt.has(i)) {
-      let toadd: pieData = {
-        title: verdictsSummary[i],
-        value: verdictsCnt.get(i),
-        color: COLORS[i],
-      };
-      data.push(toadd);
-    }
-  }
-  return data;
+  
+  return getPieData(verdictsCnt);
 }
 
 const UserStatistics: React.FC = () => {
@@ -65,6 +55,7 @@ const UserStatistics: React.FC = () => {
 
   const renderPieChart = () => {
     let data = getData(statistics);
+    let labels = getLabels(data);
     if (data.length == 0) {
       return <h3>No data for pie chart</h3>;
     } else {
@@ -73,7 +64,7 @@ const UserStatistics: React.FC = () => {
           <h3 style={{ color: "rgb(52, 50, 82)" }}>Verdicts Pie Chart:</h3>
           <PieChart
             style={{ fontSize: "7px" }}
-            label={({ dataIndex }) => verdictsSummary[dataIndex]}
+            label={({ dataIndex }) => labels[dataIndex]}
             data={data}
           />
         </Fragment>

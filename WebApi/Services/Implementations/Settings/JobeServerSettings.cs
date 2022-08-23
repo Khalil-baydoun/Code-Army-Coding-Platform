@@ -2,6 +2,6 @@
 {
     public class JobeServerSettings
     {
-        public string JobeServerEndpoint { get; set; }
+        public string Endpoint { get; set; }
     }
 }

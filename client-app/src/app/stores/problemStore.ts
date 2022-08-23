@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { history } from "../..";
 import agent from "../api/agent";
 import { IGetSolRequest } from "../models/GetSolRequest";
-import { IComment, IProblem } from "../models/problem";
+import { IProblem } from "../models/problem";
 import { ISubmissionRequest } from "../models/submissionRequest";
 import { ISubmissionReport } from "../models/submissionResponse";
 import { RootStore } from "./rootStore";
@@ -27,43 +27,6 @@ export default class ProblemStore {
   @observable.ref hubConnection: HubConnection | null = null;
   @observable target = "";
   @observable solution: string | null = null;
-
-  @action createHubConnection = () => {
-    this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5000/chat", {
-        accessTokenFactory: () => this.rootStore.commonStore.token!,
-      })
-      .configureLogging(LogLevel.Information)
-      .build();
-
-    this.hubConnection
-      .start()
-      .then(() => console.log(this.hubConnection!.state))
-      .catch((error) => console.log("Error establishing conenction", error));
-
-    this.hubConnection.on("ReceiveComment", (comment: IComment) => {
-      runInAction(() => {
-        this.problem!.Comments.push(comment);
-      });
-    });
-  };
-
-  @action stopHubConnection = () => {
-    this.hubConnection!.stop();
-  };
-
-  @action addComment = async (values: any) => {
-    values.problemId = this.problem!.Id;
-    try {
-      await this.hubConnection!.invoke(
-        "SendComment",
-        values.Body,
-        values.problemId
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   @computed get problemSummariesById() {
     let probs = Array.from(this.problemRegistry.values()).sort(

@@ -1,10 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Utilities;
 using WebApi.Store.Interfaces;
 using static Utilities.HelperFunctions;
-
 
 namespace webapi.Controllers
 {

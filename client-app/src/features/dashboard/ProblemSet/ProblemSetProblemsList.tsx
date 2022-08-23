@@ -31,6 +31,7 @@ const ProblemSetProblemsList: React.FC<RouteComponentProps<DetailParams>> = ({
   const [opened, openConfirm] = useState(false);
   const { isAuthorizedToEditCourse, hasRole } = rootStore.userStore;
   useEffect(() => {
+    console.log("loading");
     loadProblemSet(match.params.courseId, match.params.problemSetId);
   }, [match.params.courseId, match.params.problemSetId, loadProblemSet]);
 

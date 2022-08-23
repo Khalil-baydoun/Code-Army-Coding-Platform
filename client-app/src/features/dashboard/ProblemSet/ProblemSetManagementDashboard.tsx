@@ -21,23 +21,13 @@ const ProblemSetManagementDashboard: React.FC<
     loadProblemSet,
     course,
     getProblemSetStatistics,
-    getCourseGroups,
     loadingInitial,
-    getProblemSetStatisticsOfGroup,
     cleanUpProblemSetStatisticsRegistry,
   } = rootStore.courseProblemSetStore;
 
   useEffect(() => {
-    loadProblemSet(match.params.courseId, match.params.problemSetId).then(() =>
-      getCourseGroups(match.params.courseId).then((cg) => {
-        //console.log(cg);
-        cg?.forEach((x) => {
-          //console.log(x.Id);
-          getProblemSetStatisticsOfGroup(match.params.problemSetId, x.Id);
-        });
-      })
-    );
-    getProblemSetStatistics(match.params.problemSetId);
+    loadProblemSet(match.params.courseId, match.params.problemSetId);
+    getProblemSetStatistics(match.params.problemSetId, match.params.courseId);
   }, [
     match.params.courseId,
     match.params.problemSetId,

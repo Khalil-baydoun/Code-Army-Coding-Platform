@@ -3,25 +3,20 @@ import { observer } from "mobx-react-lite";
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Header, Icon, Modal, Table } from "semantic-ui-react";
-import { verdictsSummary } from "../../app/common/util/commanData";
+import { verdicts } from "../../app/common/util/commanData";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { ISubmission } from "../../app/models/courseProblemSet";
 import { RootStoreContext } from "../../app/stores/rootStore";
 import SubmissonReport from "../problem/SubmissonReport";
 
 export function verdictToString(verdict: any) {
-  if (verdict == 0) {
-    return <p style={{ color: "#279641" }}>{verdictsSummary[verdict]}</p>;
-  } else if (verdict == 6)
-    return <p style={{ color: "#f86a2c" }}>{verdictsSummary[verdict]}</p>;
+  if (verdict == 15) {
+    return <p style={{ color: "#279641" }}>{verdicts[verdict].summary}</p>;
+  } else if (verdict == 1)
+    return <p style={{ color: "#f86a2c" }}>{verdicts[verdict].summary}</p>;
   else {
-    return <p style={{ color: "#be1e2b" }}>{verdictsSummary[verdict]}</p>;
+    return <p style={{ color: "#be1e2b" }}>{verdicts[verdict].summary}</p>;
   }
-}
-
-export function progLangToString(lang: any) {
-  let langs = ["Cpp", "Java", "Python"];
-  return langs[lang];
 }
 
 interface DetailParams {
@@ -48,7 +43,7 @@ const SubmissionHistory: React.FC<RouteComponentProps<DetailParams>> = ({
   }, [getUserSubmissions, user, match.params.pageNumber]);
 
   if (!user) {
-    return <h1>Not loggin in!</h1>;
+    return <h1>Not logged in!</h1>;
   }
   if (loadingInitial == true) {
     return <LoadingComponent />;
@@ -81,8 +76,6 @@ const SubmissionHistory: React.FC<RouteComponentProps<DetailParams>> = ({
               <Table.HeaderCell>Verdict</Table.HeaderCell>
               <Table.HeaderCell>Submitted At</Table.HeaderCell>
               <Table.HeaderCell>Language</Table.HeaderCell>
-              <Table.HeaderCell>Time(ms)</Table.HeaderCell>
-              <Table.HeaderCell>Memory(KB)</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -107,13 +100,7 @@ const SubmissionHistory: React.FC<RouteComponentProps<DetailParams>> = ({
                     </p>
                   </Table.Cell>
                   <Table.Cell width="4">
-                    <p>{progLangToString(summary.ProgrammingLanguage)}</p>
-                  </Table.Cell>
-                  <Table.Cell width="2">
-                    <p>{summary.TimeTakenInMilliseconds}</p>
-                  </Table.Cell>
-                  <Table.Cell width="2">
-                    <p>{summary.MemoryTakenInKiloBytes}</p>
+                    <p>{summary.ProgrammingLanguage}</p>
                   </Table.Cell>
                 </Table.Row>
               )

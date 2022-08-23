@@ -3,20 +3,13 @@ import React, { Fragment, useContext } from "react";
 import { CSVLink } from "react-csv";
 import { PieChart } from "react-minimal-pie-chart";
 import { Grid, GridColumn, GridRow, Icon, Table } from "semantic-ui-react";
-import {
-  COLORS,
-  pieData,
-  verdicts,
-  verdictsSummary,
-} from "../../../app/common/util/commanData";
-import { IUserStatistics } from "../../../app/models/courseProblemSet";
+import { getLabels, getPieData } from "../../../app/common/util/util";
+import { ICourseStatistics, IUserStatistics } from "../../../app/models/courseProblemSet";
 import { RootStoreContext } from "../../../app/stores/rootStore";
 
-export function getData(courseStatistics: IUserStatistics[]) {
-  let data: pieData[] = [];
-
+export function getData(courseStatistics: ICourseStatistics) {
   let verdictsCnt = new Map();
-  courseStatistics.forEach((element) => {
+  courseStatistics.UserStatistics.forEach((element) => {
     element.VerdictCounts.forEach((verdict) => {
       if (verdictsCnt.has(verdict.Key)) {
         verdictsCnt.set(
@@ -28,22 +21,13 @@ export function getData(courseStatistics: IUserStatistics[]) {
       }
     });
   });
-  for (let i = 0; i < verdicts.length; i++) {
-    if (verdictsCnt.has(i)) {
-      let toadd: pieData = {
-        title: verdictsSummary[i],
-        value: verdictsCnt.get(i),
-        color: COLORS[i],
-      };
-      data.push(toadd);
-    }
-  }
-  return data;
+
+  return getPieData(verdictsCnt);
 }
 
-function getExportData(courseStatistics: IUserStatistics[]) {
+function getExportData(courseStatistics: ICourseStatistics) {
   let data: any = [];
-  courseStatistics.forEach((element) => {
+  courseStatistics.UserStatistics.forEach((element) => {
     data.push([
       element.UserEmail,
       element.NumberOfProblemsAttempted,
@@ -72,6 +56,7 @@ const CourseStatistics: React.FC = () => {
 
   const renderPieChart = () => {
     let data = getData(courseStatistics);
+    let labels = getLabels(data);
     if (data.length == 0) {
       return <h3>No data for pie chart</h3>;
     } else {
@@ -80,7 +65,7 @@ const CourseStatistics: React.FC = () => {
           <h3 style={{ color: "rgb(52, 50, 82)" }}>Verdicts Pie Chart:</h3>
           <PieChart
             style={{ fontSize: "7px" }}
-            label={({ dataIndex }) => verdictsSummary[dataIndex]}
+            label={({ dataIndex }) => labels[dataIndex]}
             data={data}
           />
         </Fragment>
@@ -130,7 +115,7 @@ const CourseStatistics: React.FC = () => {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {courseStatistics.map((summary: IUserStatistics) => (
+                {courseStatistics.UserStatistics.map((summary: IUserStatistics) => (
                   <Table.Row>
                     <Table.Cell>
                       <p>{summary.UserEmail}</p>

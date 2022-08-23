@@ -2,7 +2,9 @@ import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import {
+  IAddUsersToCourseRequest,
   ICourse,
+  ICourseStatistics,
   ICourseSummary,
   IProblemSet,
   IProblemSetStatistics,
@@ -14,7 +16,7 @@ import { IGetSolRequest } from "../models/GetSolRequest";
 import { IProblem } from "../models/problem";
 import { ISubmissionRequest } from "../models/submissionRequest";
 import { IUser, IUserFormValues, IUserSignUpValues } from "../models/user";
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = "https://localhost:44381/api";
 
 axios.interceptors.request.use(
   (config) => {
@@ -37,6 +39,7 @@ axios.interceptors.response.use(undefined, (error) => {
     config.method === "get" &&
     data.errors.hasOwnProperty("id")
   ) {
+    console.log(error);
     history.push("/notfound");
   } else if (status === 400) {
   }
@@ -107,12 +110,10 @@ const Users = {
 
 const Courses = {
   createCourse: (course: ICourse) => requests.post("/course", course),
-  getCourseStatistics: (id: string): Promise<IUserStatistics[]> =>
+  getCourseStatistics: (id: string): Promise<ICourseStatistics> =>
     requests.get(`/statistics/course/${id}`),
-  addSingleUserToCourse: (addUserReq: any) =>
-    requests.post("/course/adduser", addUserReq),
-  addUsersToCourse: (addUsersReq: FormData) =>
-    requests.post("/course/addusers", addUsersReq),
+  addUsersToCourse: (addUserReq: IAddUsersToCourseRequest) =>
+    requests.post("/course/addusers", addUserReq),
   updateCourse: (course: ICourse) =>
     requests.put(`/course/${course.Id}`, course),
   getCourseSimple: (id: string): Promise<ICourseSummary> =>
@@ -120,17 +121,9 @@ const Courses = {
   getCourseDetailed: (id: string): Promise<ICourse> =>
     requests.get(`/course/${id}`),
   deleteCourse: (id: string) => requests.del(`course/${id}`),
-  getCourseGroups: (id: string) => requests.get(`/course/group/${id}`),
 };
 
 const ProblemSets = {
-  getProblemSetStatistics: (id: string): Promise<IProblemSetStatistics> =>
-    requests.get(`/statistics/problemset/${id}`),
-  getProblemSetStatisticsOfGroup: (
-    id: string,
-    groupId: string
-  ): Promise<IProblemSetStatistics> =>
-    requests.get(`/statistics/problemset/${id}?groupId=${groupId}`),
   createProblemSet: (problemSet: IProblemSet) =>
     requests.post("/problemset", problemSet),
   updateProblemSet: (problemSet: IProblemSet) =>
@@ -140,7 +133,6 @@ const ProblemSets = {
   getPsDetailed: (id: string): Promise<IProblemSet> =>
     requests.get(`/problemset/${id}`),
   deleteProblemSet: (id: string) => requests.del(`/problemset/${id}`),
-  getPsDueDates: (id: string) => requests.get(`/problemset/duedate/${id}`),
 };
 
 export default {

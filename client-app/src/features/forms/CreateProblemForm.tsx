@@ -123,7 +123,7 @@ const CreateProblemForm: React.FC<RouteComponentProps<DetailParams>> = ({
               label="Input Description"
               rows={4}
               placeholder="Insert Input Description here ..."
-              value={problem.IDescription}
+              value={problem.InputDescription}
               component={TextAreaInput}
             />
             <Field
@@ -131,7 +131,7 @@ const CreateProblemForm: React.FC<RouteComponentProps<DetailParams>> = ({
               label="Output Description"
               rows={4}
               placeholder="Insert Output Description here ..."
-              value={problem.ODescription}
+              value={problem.OutputDescription}
               component={TextAreaInput}
             />
             <Form.Group inline>
@@ -158,24 +158,6 @@ const CreateProblemForm: React.FC<RouteComponentProps<DetailParams>> = ({
                 type="number"
                 component={TextInput}
                 value={problem.MemoryLimitInKiloBytes.toString()}
-              />
-            </Form.Group>
-            <Form.Group inline>
-              <Field
-                name="TimeFactor"
-                label="Time Factor allowed"
-                placeholder="TimeFactor"
-                type="number"
-                value={problem.TimeFactor.toString()}
-                component={TextInput}
-              />
-              <Field
-                name="MemoryFactor"
-                label="Memory Factor Allowed"
-                placeholder="MemoryFactor"
-                type="number"
-                component={TextInput}
-                value={problem.MemoryFactor.toString()}
               />
             </Form.Group>
             <Field

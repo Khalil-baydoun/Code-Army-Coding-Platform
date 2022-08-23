@@ -6,9 +6,8 @@ import {
   ICourse,
   IProblemSet,
   IProblemSetStatistics,
-  IUserStatistics,
-  IGroup,
-  IDueDate,
+  ICourseStatistics,
+  IAddUsersToCourseRequest,
 } from "../models/courseProblemSet";
 import { RootStore } from "./rootStore";
 
@@ -19,15 +18,12 @@ export default class CourseProblemSetStore {
   }
   @observable submitting = false;
   @observable course: ICourse | null = null;
-  @observable courseGroups: IGroup[] | null = null;
-  @observable courseStatistics: IUserStatistics[] | null = null;
+  @observable courseStatistics: ICourseStatistics | null = null;
   @observable problemSetStatistics: IProblemSetStatistics | null = null;
-
   @observable problemSet: IProblemSet | null | undefined = null;
   @observable loadingInitial = false;
   @observable problemSetRegistry = new Map();
   @observable problemSetStatisticsRegistry = new Map();
-  @observable dueDates: IDueDate[] | null = null;
   @observable target = "";
 
   @action getCourse = async (courseId: string) => {
@@ -41,11 +37,11 @@ export default class CourseProblemSetStore {
         this.course = course;
         this.loadingInitial = false;
       });
+      console.log(course);
       runInAction("load problemSets", () => {
         course.ProblemSets.forEach((problemSet) => {
-          problemSet.dueDates.forEach((x) => {
-            x.dueDate = new Date(x.dueDate);
-          });
+          console.log("date :", problemSet.DueDate, new Date(problemSet.DueDate));
+          problemSet.DueDate = new Date(problemSet.DueDate);
           this.problemSetRegistry.set(String(+problemSet.Id), problemSet);
         });
       });
@@ -73,12 +69,16 @@ export default class CourseProblemSetStore {
     }
   };
 
-  @action getProblemSetStatistics = async (problemSetId: string) => {
+  @action getProblemSetStatistics = async (problemSetId: string, courseId: string) => {
+    if (this.problemSetStatistics) {
+      return;
+    }
+
     this.loadingInitial = true;
+    await this.getCourseStatistics(courseId);
     try {
-      const ps = await agent.ProblemSets.getProblemSetStatistics(problemSetId);
       runInAction(() => {
-        this.problemSetStatistics = ps;
+        this.problemSetStatistics = this.courseStatistics?.ProblemSetStatistics[parseInt(problemSetId)]!;
         this.loadingInitial = false;
       });
     } catch (error) {
@@ -117,9 +117,6 @@ export default class CourseProblemSetStore {
       runInAction(() => {
         this.loadingInitial = false;
         this.problemSet = problemSet;
-        this.problemSet?.dueDates.forEach((x) => {
-          x.dueDate = new Date(x.dueDate);
-        });
       });
       runInAction("load problems", () => {
         this.rootStore.problemStore.problemRegistry.clear();
@@ -165,9 +162,7 @@ export default class CourseProblemSetStore {
           this.problemSet.Description = problemSet.Description;
           this.problemSet.Name = problemSet.Name;
           this.problemSet.Prerequisites = problemSet.Prerequisites;
-          this.problemSet.dueDates.forEach((x) => {
-            x.dueDate = new Date(x.dueDate);
-          });
+          this.problemSet.DueDate = new Date(this.problemSet.DueDate);
         }
         this.problemSetRegistry.set(String(+problemSet.Id), this.problemSet);
         this.submitting = false;
@@ -199,37 +194,17 @@ export default class CourseProblemSetStore {
     }
   };
 
-  @action addUserToCourse = async (userEmail: string) => {
+  @action addUsersToCourse = async (userEmails: string[]) => {
     this.submitting = true;
     try {
-      var request = {
-        CourseId: this.course?.Id,
-        UserEmail: userEmail,
+      var request: IAddUsersToCourseRequest = {
+        courseId: ""+this.course?.Id,
+        userEmails: userEmails,
       };
-      await agent.Courses.addSingleUserToCourse(request);
-      runInAction("add user to course", () => {
-        this.course?.UsersEmails.push(userEmail);
-        this.submitting = false;
-      });
-      return true;
-    } catch (error) {
-      runInAction("add user to course error", () => {
-        this.submitting = false;
-      });
-      return false;
-    }
-  };
-
-  @action addUsersToCourse = async (userEmails: FormData) => {
-    this.submitting = true;
-    try {
-      await agent.Courses.addUsersToCourse(userEmails);
-      var newCrs = await agent.Courses.getCourseSimple(this.course?.Id!);
+      await agent.Courses.addUsersToCourse(request);
       runInAction("add users to course", () => {
-        if (this.course) {
-          this.course.UsersEmails = newCrs.UsersEmails;
-        }
-        this.submitting = false;
+          this.course?.UsersEmails.push.apply(this.course.UsersEmails,userEmails);
+          this.submitting = false;
       });
       return true;
     } catch (error) {
@@ -239,6 +214,26 @@ export default class CourseProblemSetStore {
       return false;
     }
   };
+
+  // @action addUsersToCourse = async (userEmails: FormData) => {
+  //   this.submitting = true;
+  //   try {
+  //     await agent.Courses.addUsersToCourse(userEmails);
+  //     var newCrs = await agent.Courses.getCourseSimple(this.course?.Id!);
+  //     runInAction("add users to course", () => {
+  //       if (this.course) {
+  //         this.course.UsersEmails = newCrs.UsersEmails;
+  //       }
+  //       this.submitting = false;
+  //     });
+  //     return true;
+  //   } catch (error) {
+  //     runInAction("add users to course error", () => {
+  //       this.submitting = false;
+  //     });
+  //     return false;
+  //   }
+  // };
 
   @action updateCourse = async (course: ICourse) => {
     this.submitting = true;
@@ -330,72 +325,6 @@ export default class CourseProblemSetStore {
       });
       console.log(error);
       history.push(`/course/${courseId}/problemset`);
-    }
-  };
-
-  @action getCourseGroups = async (courseId: string) => {
-    if (this.course && courseId == this.course.Id && this.courseGroups) {
-      return;
-    }
-    this.loadingInitial = true;
-    try {
-      const groups = await agent.Courses.getCourseGroups(courseId);
-      runInAction(() => {
-        this.courseGroups = groups;
-        this.loadingInitial = false;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loadingInitial = false;
-      });
-      console.log(error);
-    }
-    return this.courseGroups;
-  };
-
-  @action getPSDueDates = async (problemSetId: string) => {
-    this.loadingInitial = true;
-    try {
-      const dueDates = await agent.ProblemSets.getPsDueDates(problemSetId);
-      runInAction(() => {
-        this.loadingInitial = false;
-        dueDates.forEach((d: any) => {
-          this.dueDates = [];
-          this.dueDates?.push({
-            dueDate: d.dueDate,
-            groupId: d.groupId,
-            problemSetId: d.problemSetId,
-          });
-        });
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loadingInitial = false;
-      });
-      console.log(error);
-    }
-  };
-
-  @action getProblemSetStatisticsOfGroup = async (
-    problemSetId: string,
-    groupId: string
-  ) => {
-    //console.log(this.problemSetStatisticsRegistry);
-    this.loadingInitial = true;
-    try {
-      const psStatistics = await agent.ProblemSets.getProblemSetStatisticsOfGroup(
-        problemSetId,
-        groupId
-      );
-      runInAction(() => {
-        this.problemSetStatisticsRegistry.set(String(+groupId), psStatistics);
-        this.loadingInitial = false;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loadingInitial = false;
-      });
-      console.log(error);
     }
   };
 

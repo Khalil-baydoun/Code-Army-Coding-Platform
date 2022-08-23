@@ -107,17 +107,6 @@ const SubmissionReport: React.FC<DetailParams> = ({
                   {sourceCode}
                 </SyntaxHighlighter>
               </Segment>
-              <Segment>
-                <Divider horizontal>
-                  <Header as="h4">
-                    <Icon name="chart bar" color="orange" />
-                    Static Code analysis
-                  </Header>
-                </Divider>
-                {report.StaticCodeAnalysis.map((x) => (
-                  <p>{x}</p>
-                ))}
-              </Segment>
               {WAReport()}
             </Segment>
             <Segment textAlign="center">

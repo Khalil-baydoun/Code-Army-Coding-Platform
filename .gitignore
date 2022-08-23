@@ -4,3 +4,4 @@ obj
 .vs
 .editorconfig
 .vscode
+node_modules

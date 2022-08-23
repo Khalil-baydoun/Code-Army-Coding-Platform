@@ -24,7 +24,7 @@ namespace webapi.Services.Implementations
         {
             _problemStore = problemStore;
             _testStore = testStore;
-            jobeEndpoint = options.Value.JobeServerEndpoint;
+            jobeEndpoint = options.Value.Endpoint;
         }
 
         private async Task<JobeSubmissionResponse> SendRequestToJobeServer(TestUnit testUnit, SubmissionRequest submissionRequest, Problem problem)
