@@ -18,14 +18,14 @@ const SolutionView = () => {
   const [progLang, changeProgLang] = useState(progLangs[0].value);
 
   useEffect(() => {
-    loadSolution(problem!.Id, progLang); // Need to take input the prog lang
+    // loadSolution(problem!.Id, progLang); // Need to take input the prog lang
   }, [loadSolution, problem, progLang]);
 
   const monacoRef = useRef(null);
 
   const handleProgLangChange = (val: any) => {
     console.log(val);
-    changeProgLang(parseInt(val));
+    // changeProgLang(parseInt(val));
   };
 
   function handleEditorWillMount(monaco: any) {
@@ -68,7 +68,7 @@ const SolutionView = () => {
             acceptSuggestionOnCommitCharacter: true,
             acceptSuggestionOnEnter: "on",
             accessibilitySupport: "auto",
-            autoIndent: true,
+            autoIndent: "advanced",
             automaticLayout: true,
             codeLens: true,
             colorDecorators: true,
@@ -117,7 +117,6 @@ const SolutionView = () => {
             wordWrap: "off",
             wordWrapBreakAfterCharacters: "\t})]?|&,;",
             wordWrapBreakBeforeCharacters: "{([+",
-            wordWrapBreakObtrusiveCharacters: ".",
             wordWrapColumn: 80,
             wordWrapMinified: true,
             wrappingIndent: "none",

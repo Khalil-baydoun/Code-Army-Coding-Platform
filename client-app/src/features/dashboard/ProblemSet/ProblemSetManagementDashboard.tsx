@@ -5,7 +5,6 @@ import { Segment, Tab } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { RootStoreContext } from "../../../app/stores/rootStore";
 import EditProblemSetForm from "../../forms/EditProblemSetForm";
-import ProblemSetStatistics from "./ProblemSetStatistics";
 import UserProblemSetStatistics from "./UserProblemSetStatistics";
 
 interface DetailParams {
@@ -61,7 +60,6 @@ const ProblemSetManagementDashboard: React.FC<
       },
       render: () => (
         <Tab.Pane>
-          <ProblemSetStatistics />
           <UserProblemSetStatistics />
         </Tab.Pane>
       ),

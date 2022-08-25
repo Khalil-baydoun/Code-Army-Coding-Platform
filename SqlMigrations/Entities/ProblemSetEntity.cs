@@ -25,7 +25,7 @@ namespace SqlMigrations.Entities
 
         public ICollection<ProblemSetProblemEntity> ProblemSetProblems { get; set; }
 
-        public DateTime DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
         [ForeignKey("Course")]
         public int CourseId { get; set; }

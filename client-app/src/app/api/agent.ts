@@ -127,7 +127,8 @@ const ProblemSets = {
   createProblemSet: (problemSet: IProblemSet) =>
     requests.post("/problemset", problemSet),
   updateProblemSet: (problemSet: IProblemSet) =>
-    requests.put(`/problemset/${problemSet.Id}`, problemSet),
+    // console.log("myps: ", problemSet),  
+  requests.put(`/problemset/${problemSet.Id}`, problemSet),
   getPsSimple: (id: string): Promise<IProblemSetSummary> =>
     requests.get(`/problemset/${id}`),
   getPsDetailed: (id: string): Promise<IProblemSet> =>

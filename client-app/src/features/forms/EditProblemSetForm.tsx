@@ -1,4 +1,4 @@
-import { date } from "date-fns/locale/zh-TW/index.js";
+
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useState } from "react";
 import { Field, Form as FinalForm } from "react-final-form";
@@ -49,11 +49,7 @@ const EditProblemSetForm: React.FC = () => {
 
   const handleFinalFormSubmit = (values: any) => {
     const { ...problemSet } = values;
-    // const dateAndTime = combineDateAndTime(
-    // values["DueDate"],
-    // values["DueDate"]);
-    problemSet.DueDate = new Date(values["DueDate"]);
-    console.log(problemSet);
+    problemSet.DueDate = values["DueDate"];
     updateProblemSet(problemSet).then(() => setShowMessage(true));
   };
 
@@ -99,8 +95,6 @@ const EditProblemSetForm: React.FC = () => {
               name={"DueDate"}
               label={"due date"}
               placeholder="Keep this empty if there is no due date for this group"
-              date={true}
-              time={true}
               component={DateInput}
             />
             <Button

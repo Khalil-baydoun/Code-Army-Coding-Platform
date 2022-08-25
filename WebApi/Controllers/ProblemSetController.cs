@@ -27,6 +27,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> AddProblemSet([FromBody] AddProblemSetRequest problemSet)
         {
+            problemSet.DueDate = problemSet.DueDate?.ToLocalTime();
             problemSet.AuthorEmail = GetEmail(User);
             if (!await IsAuthorizedToCourse(problemSet.CourseId.ToString(), User))
             {
@@ -41,6 +42,7 @@ namespace WebApi.Controllers
         [Authorize(Policy = "Admins&Instructors")]
         public async Task<IActionResult> UpdateProblemSet(string id, [FromBody] UpdateProblemSetRequest req)
         {
+            req.DueDate = req.DueDate?.ToLocalTime();
             var ps = _problemSetService.GetProblemSet(id);
             if (!await IsAuthorizedToCourse(ps.CourseId.ToString(), User))
             {

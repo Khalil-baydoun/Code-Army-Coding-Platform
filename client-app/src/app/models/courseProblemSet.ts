@@ -24,8 +24,8 @@ export interface IUserSubmissions {
 }
 
 export interface IProblemSetStatistics {
+  ProblemSetId: number;
   UserStatistics: IProblemSetUserStatistics[];
-  ProblemsStatistics: IProblemStatistics[];
 }
 
 export interface ISubmission {
@@ -83,7 +83,7 @@ export interface IProblemSet {
   Problems: IProblemSummary[];
   Prerequisites: string[];
   CourseId: string;
-  DueDate: Date;
+  DueDate?: Date;
 }
 
 export interface IProblemSetFormValues extends Partial<IProblemSet> {}
@@ -96,7 +96,7 @@ export class ProblemSetFormValues {
   Problems: IProblemSummary[] = [];
   CourseId: string = "";
   Prerequisites: string[] = [];
-  DueDate: Date = new Date();
+  DueDate?: Date | null = null;
   constructor(init?: Partial<ProblemSetFormValues>) {
     Object.assign(this, init);
   }

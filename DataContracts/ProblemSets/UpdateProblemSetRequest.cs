@@ -8,6 +8,6 @@ namespace DataContracts.ProblemSets
 
         public string[] Prerequisites { get; set; }
 
-        public DateTime DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
     };
 }

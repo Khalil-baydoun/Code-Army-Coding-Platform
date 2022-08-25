@@ -16,7 +16,7 @@ namespace DataContracts.ProblemSets
 
         public List<string> ProblemIds { get; set; }
 
-        public DateTime DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
         public int CourseId { get; set; }
     };

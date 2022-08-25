@@ -84,6 +84,7 @@ namespace WebApi.Store.Sql
                 if (target != null)
                 {
                     entity.CopyProperties(target);
+                    target.DueDate = problemSet.DueDate;
                     var success = await db.SaveChangesAsync() > 0;
                     if (!success)
                     {

@@ -33,7 +33,7 @@ export const tags = [
 ];
 
 export const progLangs = [
-  { key: "j", text: "C++", value: 0 },
-  { key: "c", text: "Java", value: 1 },
-  { key: "p", text: "Python", value: 2 },
+  { key: "j", text: "C++", value: "cpp" },
+  { key: "c", text: "Java", value: "java" },
+  { key: "p", text: "Python", value: "python3" },
 ];

@@ -99,7 +99,7 @@ namespace WebApi.Store.Sql
                                 UserEmail = userEmail,
                                 ProblemIdsSolved = submissions
                                 .Where(sub => problemIdsOfProblemSet
-                                .Contains(sub.ProblemId) && sub.Verdict == (int)Verdict.Accepted)
+                                .Contains(sub.ProblemId) && sub.Verdict == (int)Verdict.Accepted && sub.UserEmail == userEmail)
                                 .Select(sub => sub.ProblemId)
                                 .Distinct()
                                 .ToList()
