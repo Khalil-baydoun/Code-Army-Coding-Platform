@@ -73,5 +73,8 @@
     "@types/react-copy-to-clipboard": "^5.0.0",
     "@types/react-csv": "^1.1.1",
     "@types/react-datetime-picker": "^3.4.1"
+  },
+  "optionalDependencies": {
+    "fsevents": "*"
   }
 }
