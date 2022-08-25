@@ -16,7 +16,7 @@ import { IGetSolRequest } from "../models/GetSolRequest";
 import { IProblem } from "../models/problem";
 import { ISubmissionRequest } from "../models/submissionRequest";
 import { IUser, IUserFormValues, IUserSignUpValues } from "../models/user";
-axios.defaults.baseURL = "https://localhost:44381/api";
+axios.defaults.baseURL = "https://codearmy.azurewebsites.net";
 
 axios.interceptors.request.use(
   (config) => {
