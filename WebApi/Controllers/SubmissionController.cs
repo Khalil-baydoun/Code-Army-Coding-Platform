@@ -14,23 +14,20 @@ namespace webapi.Controllers
     public class SubmissionController : ControllerBase
     {
         private readonly ILogger<SubmissionController> _logger;
-        private readonly IStatisticsService _statisticsService;
-        private readonly IWaReportService _reportService;
+        private readonly ISubmissionService _submissionService;
         private readonly WebApi.Services.Interfaces.IAuthorizationService _authorizationService;
         private readonly ISubmissionQueue _queue;
 
         public SubmissionController(
             ISubmissionQueue queue,
             WebApi.Services.Interfaces.IAuthorizationService authorizationService,
-            IStatisticsService statisticsService,
             ILogger<SubmissionController> logger,
-            IWaReportService reportService)
+            ISubmissionService reportService)
         {
             _queue = queue;
             _authorizationService = authorizationService;
-            _statisticsService = statisticsService;
             _logger = logger;
-            _reportService = reportService;
+            _submissionService = reportService;
         }
 
         [HttpPost]
@@ -54,7 +51,8 @@ namespace webapi.Controllers
         public IActionResult GetSubmissions(int offset, int limit)
         {
             var email = GetEmail(User);
-            var resp = _statisticsService.GetUserSubmissions(email, offset, limit + 1);
+            var resp = _submissionService.GetUserSubmissions(email, offset, limit + 1);
+
             if (resp.Submissions.Count == limit + 1)
             {
                 resp.Submissions.RemoveAt(resp.Submissions.Count - 1);
@@ -64,15 +62,8 @@ namespace webapi.Controllers
             {
                 resp.SubmissionsRemaining = false;
             }
-            return Ok(resp);
-        }
 
-        [HttpGet("{submissionId}")]
-        [Authorize]
-        public IActionResult GetReport(string submissionId)
-        {
-            var report = _reportService.GetReport(submissionId);
-            return Ok(report);
+            return Ok(resp);
         }
     }
 }

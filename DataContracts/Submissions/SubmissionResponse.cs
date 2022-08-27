@@ -1,4 +1,3 @@
-using DataContracts.Report;
 
 namespace DataContracts.Submissions
 {
@@ -8,7 +7,17 @@ namespace DataContracts.Submissions
 
         public int TestsPassed { get; set; }
 
-        public WrongAnswerReport WaReport { get; set; }
+        public int TotalTests { get; set; }
+
+        public string ActualOutput { get; set; }
+
+        public string ExpectedOutput { get; set; }
+
+        public string WrongTestInput { get; set; }
+
+        public string RuntimeErrorMessage { get; set; }
+
+        public string CompilerErrorMessage { get; set; }
     }
 
     // Values according to ideone API

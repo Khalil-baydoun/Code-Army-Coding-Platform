@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SqlMigrations.Entities
 {
     [Table(TableName)]
-    public class SubmissionStatisticsEntity
+    public class SubmissionEntity
     {
-        public const string TableName = "SubmissionStatistics";
+        public const string TableName = "Submissions";
 
         [Key]
         public int Id { get; set; }
@@ -30,5 +30,19 @@ namespace SqlMigrations.Entities
         public string ProgrammingLanguage { get; set; }
 
         public bool IsRetried { get; set; }
+
+        public int TestsPassed { get; set; } = 0;
+
+        public int TotalTests { get; set; }
+
+        public string? ActualOutput { get; set; }
+
+        public string? ExpectedOutput { get; set; }
+
+        public string? WrongTestInput { get; set; }
+
+        public string? RuntimeErrorMessage { get; set; }
+
+        public string? CompilerErrorMessage { get; set; }
     }
 }

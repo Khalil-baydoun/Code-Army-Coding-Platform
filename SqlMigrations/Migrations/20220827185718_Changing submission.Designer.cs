@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SqlMigrations;
 
@@ -11,9 +12,10 @@ using SqlMigrations;
 namespace SqlMigrations.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220827185718_Changing submission")]
+    partial class Changingsubmission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -219,12 +221,15 @@ namespace SqlMigrations.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ActualOutput")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompilerErrorMessage")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExpectedOutput")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsRetried")
@@ -238,6 +243,7 @@ namespace SqlMigrations.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RuntimeErrorMessage")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SourceCode")
@@ -250,9 +256,6 @@ namespace SqlMigrations.Migrations
                     b.Property<int>("TestsPassed")
                         .HasColumnType("int");
 
-                    b.Property<int>("TotalTests")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserEmail")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -262,6 +265,7 @@ namespace SqlMigrations.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WrongTestInput")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

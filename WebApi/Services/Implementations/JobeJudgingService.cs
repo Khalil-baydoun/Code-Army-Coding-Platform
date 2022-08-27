@@ -1,7 +1,6 @@
 ﻿using DataContracts;
 using DataContracts.Jobe;
 using DataContracts.Problems;
-using DataContracts.Report;
 using DataContracts.Submissions;
 using DataContracts.Tests;
 using Microsoft.Extensions.Options;
@@ -59,7 +58,9 @@ namespace webapi.Services.Implementations
             var jobeOutput = new JobeSubmissionResponse
             {
                 Outcome = int.Parse(parsedResponse["outcome"].ToString()),
-                Output = TrimAndSplitOnNewLine(parsedResponse["stdout"].ToString())
+                Output = TrimAndSplitOnNewLine(parsedResponse["stdout"].ToString()),
+                CompilerErrorMessage = parsedResponse["cmpinfo"].ToString() ?? "",
+                RuntimeErrorMessage = parsedResponse["stderr"].ToString() ?? ""
             };
 
             if (jobeOutput.Outcome == (int)Verdict.Accepted)
@@ -86,9 +87,11 @@ namespace webapi.Services.Implementations
             var submissionResponse = new SubmissionResponse
             {
                 Verdict = Verdict.Accepted,
+                TotalTests = tests.Count,
             };
 
             int testNumber = 0;
+
             foreach (var test in tests)
             {
                 var jobeOutput = await SendRequestToJobeServer(test, req, problem);
@@ -96,15 +99,16 @@ namespace webapi.Services.Implementations
                 if (jobeOutput.Outcome != (int)Verdict.Accepted)
                 {
                     submissionResponse.Verdict = (Verdict)jobeOutput.Outcome;
+                    submissionResponse.WrongTestInput = TruncateStringIfExceedsMaxSize(test.Input);
+                    submissionResponse.ExpectedOutput = TruncateStringIfExceedsMaxSize(test.Output);
+                    submissionResponse.RuntimeErrorMessage = jobeOutput.RuntimeErrorMessage;
+                    submissionResponse.CompilerErrorMessage = jobeOutput.CompilerErrorMessage;
+
                     if (submissionResponse.Verdict == Verdict.WrongAnswer)
                     {
-                        submissionResponse.WaReport = new WrongAnswerReport
-                        {
-                            ExpectedOutput = TruncateStringIfExceedsMaxSize(test.Output),
-                            Input = TruncateStringIfExceedsMaxSize(test.Input),
-                            ActualOutput = TruncateStringIfExceedsMaxSize(string.Join("\r\n", jobeOutput.Output))
-                        };
+                        submissionResponse.ActualOutput = TruncateStringIfExceedsMaxSize(string.Join("\r\n", jobeOutput.Output));
                     }
+
                     break;
                 }
 
@@ -117,9 +121,9 @@ namespace webapi.Services.Implementations
 
         private static string TruncateStringIfExceedsMaxSize(string val)
         {
-            if (val.Length > 200)
+            if (val.Length > 250)
             {
-                val = val[..200] + " ...";
+                val = val[..250] + " ...";
             }
 
             return val;

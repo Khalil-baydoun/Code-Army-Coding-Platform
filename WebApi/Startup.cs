@@ -66,9 +66,9 @@ namespace webapi
             services.AddSingleton<IStatisticsStore, SqlStatisticsStore>();
             services.AddSingleton<ISolutionService, SolutionService>();
             services.AddSingleton<ISolutionStore, SqlSolutionStore>();
-            services.AddSingleton<IWaReportStore, SqlWrongReportStore>();
+            services.AddSingleton<ISubmissionsStore, SqlSubmissionssStore>();
             services.AddSingleton<ISubmissionQueue, ServiceBusSubmissionQueue>();
-            services.AddSingleton<IWaReportService, WaReportService>();
+            services.AddSingleton<ISubmissionService, SubmissionsService>();
 
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
             services.AddDbContext<DataContext>(opt =>

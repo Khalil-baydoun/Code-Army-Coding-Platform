@@ -23,7 +23,7 @@ namespace WebApi.Store.Sql
             {
 
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var submissions = db.SubmissionStatistics
+                var submissions = db.Submissions
                     .Where(stat => userEmail.Equals(stat.UserEmail))
                     .ToList();
 
@@ -71,7 +71,7 @@ namespace WebApi.Store.Sql
                     .Select(cu => cu.Id)
                     .ToList();
 
-                var submissions = db.SubmissionStatistics
+                var submissions = db.Submissions
                     .Where(sub => problemAndProblemSetsIds.Select(p => p.ProblemId).Contains(sub.ProblemId))
                     .ToList();
 
@@ -115,7 +115,7 @@ namespace WebApi.Store.Sql
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var submissions = db.SubmissionStatistics
+                var submissions = db.Submissions
                     .Where(stat => problemId == stat.ProblemId)
                     .ToList();
 
@@ -129,13 +129,13 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public async Task AddSubmission(SubmissionStatistics sub)
+        public async Task AddSubmission(Submission sub)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var entity = _mapper.ToSubmissionStatisticsEntity(sub);
-                db.SubmissionStatistics.Add(entity);
+                db.Submissions.Add(entity);
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {
@@ -145,12 +145,12 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public async Task UpdateSubmission(SubmissionStatistics sub)
+        public async Task UpdateSubmission(Submission sub)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var entity = db.SubmissionStatistics.Where(ps => ps.Id == sub.Id).FirstOrDefault();
+                var entity = db.Submissions.Where(ps => ps.Id == sub.Id).FirstOrDefault();
                 entity.Verdict = sub.Verdict;
                 entity.IsRetried = sub.IsRetried;
                 var success = await db.SaveChangesAsync() > 0;
@@ -161,12 +161,12 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public List<SubmissionStatistics> GetSubmissionsPaged(string userEmail, int offset, int limit)
+        public List<Submission> GetSubmissionsPaged(string userEmail, int offset, int limit)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                return db.SubmissionStatistics
+                return db.Submissions
                     .Where(x => x.UserEmail.Equals(userEmail))
                     .OrderByDescending(x => x.Id)
                     .Skip(offset)
@@ -176,12 +176,12 @@ namespace WebApi.Store.Sql
             }
         }
 
-        public async Task<SubmissionStatistics?> GetSubmission(int submissionId)
+        public async Task<Submission?> GetSubmission(int submissionId)
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                return await db.SubmissionStatistics
+                return await db.Submissions
                     .Where(x => x.Id == submissionId)
                     .Select(x => _mapper.ToSubmissionStatistics(x))
                     .FirstOrDefaultAsync();

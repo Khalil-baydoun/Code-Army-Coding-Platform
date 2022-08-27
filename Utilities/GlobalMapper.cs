@@ -4,7 +4,6 @@ using DataContracts.Problems;
 using DataContracts.ProblemSets;
 using DataContracts.Statistics;
 using DataContracts.Submissions;
-using DataContracts.Report;
 using DataContracts.Tests;
 using DataContracts.Users;
 using SqlMigrations.Entities;
@@ -16,12 +15,12 @@ public class GlobalMapper
     {
         var configuration = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<ProblemSetEntity, ProblemSet>().ForMember(d => d.Prerequisites, o => o.MapFrom(s => new string[] { s.Prerequisites } )); ;
+            cfg.CreateMap<ProblemSetEntity, ProblemSet>().ForMember(d => d.Prerequisites, o => o.MapFrom(s => new string[] { s.Prerequisites })); ;
             cfg.CreateMap<ProblemSet, ProblemSetEntity>();
             cfg.CreateMap<AddProblemSetRequest, ProblemSetEntity>();
             cfg.CreateMap<ProblemEntity, Problem>();
-            cfg.CreateMap<SubmissionStatistics, SubmissionStatisticsEntity>();
-            cfg.CreateMap<SubmissionStatisticsEntity, SubmissionStatistics>();
+            cfg.CreateMap<Submission, SubmissionEntity>();
+            cfg.CreateMap<SubmissionEntity, Submission>();
             cfg.CreateMap<UserEntity, User>();
             cfg.CreateMap<User, UserEntity>();
             cfg.CreateMap<AddUserRequest, GetUserResponse>();
@@ -40,8 +39,6 @@ public class GlobalMapper
             cfg.CreateMap<UpdateProblemSetRequest, ProblemSet>();
             cfg.CreateMap<SolutionRequest, SubmissionRequest>();
             cfg.CreateMap<SubmissionRequest, SolutionEntity>();
-            cfg.CreateMap<WrongAnswerReport, WaReportEntity>();
-            cfg.CreateMap<WaReportEntity, WrongAnswerReport>();
         });
         _mapper = configuration.CreateMapper();
     }
@@ -106,15 +103,15 @@ public class GlobalMapper
         return entity;
     }
 
-    public SubmissionStatisticsEntity ToSubmissionStatisticsEntity(SubmissionStatistics subStat)
+    public SubmissionEntity ToSubmissionStatisticsEntity(Submission subStat)
     {
-        var entity = _mapper.Map<SubmissionStatisticsEntity>(subStat);
+        var entity = _mapper.Map<SubmissionEntity>(subStat);
         return entity;
     }
 
-    public SubmissionStatistics ToSubmissionStatistics(SubmissionStatisticsEntity subStat)
+    public Submission ToSubmissionStatistics(SubmissionEntity subStat)
     {
-        var entity = _mapper.Map<SubmissionStatistics>(subStat);
+        var entity = _mapper.Map<Submission>(subStat);
         return entity;
     }
 
@@ -140,7 +137,7 @@ public class GlobalMapper
 
         var problemSet = _mapper.Map<ProblemSet>(entity);
         problemSet.Id = entity.Id;
-        if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');//TODO
+        if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');
         problemSet.Problems = entity.ProblemSetProblems.Select(x => ToProblem(x.Problem)).ToList();
         return problemSet;
     }
@@ -183,11 +180,6 @@ public class GlobalMapper
         return entity;
     }
 
-    public WrongAnswerReport ToWaReport(WaReportEntity entity)
-    {
-        return _mapper.Map<WrongAnswerReport>(entity);
-    }
-
     public TestEntity ToTestEntity(TestUnit test)
     {
         var entity = _mapper.Map<TestEntity>(test);
@@ -219,19 +211,5 @@ public class GlobalMapper
         var solution = _mapper.Map<SolutionEntity>(submissionRequest);
 
         return solution;
-    }
-
-    public WaReportEntity ToWaReportEntity(WrongAnswerReport wrongAnswerReport)
-    {
-        var report = _mapper.Map<WaReportEntity>(wrongAnswerReport);
-
-        return report;
-    }
-
-    public WrongAnswerReport ToWrongAnswerReport(WaReportEntity waReportEntity)
-    {
-        var report = _mapper.Map<WrongAnswerReport>(waReportEntity);
-
-        return report;
     }
 }

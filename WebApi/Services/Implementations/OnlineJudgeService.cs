@@ -8,13 +8,11 @@ namespace WebApi.Services.Implementations
         private readonly int _compileTimeLimit = 3000; //3000 milliSeconds
         IProblemStore _problemStore;
         ITestStore _testStore;
-        IWaReportStore _waReportStore;
 
-        public OnlineJudgeService(IProblemStore problemStore, ITestStore testStore, IWaReportStore waReportStore)
+        public OnlineJudgeService(IProblemStore problemStore, ITestStore testStore)
         {
             _problemStore = problemStore;
             _testStore = testStore;
-            _waReportStore = waReportStore;
         }
 
         //    private List<ProcessInput> GetProcessInput(Problem problem)

@@ -34,10 +34,8 @@ namespace SqlMigrations
 
         public DbSet<ProblemSetProblemEntity> ProblemSetProblems { get; set; }
 
-        public DbSet<SubmissionStatisticsEntity> SubmissionStatistics { get; set; }
+        public DbSet<SubmissionEntity> Submissions { get; set; }
         
-        public DbSet<WaReportEntity> WaReports {get; set; }
-
         public DataContext(DbContextOptions options) : base(options)
         {
         }
@@ -53,7 +51,7 @@ namespace SqlMigrations
 
             modelBuilder.Entity<ProblemEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<SubmissionStatisticsEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<SubmissionEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
             modelBuilder.Entity<CourseEntity>().Property(e => e.Id).ValueGeneratedOnAdd();
 
@@ -88,7 +86,7 @@ namespace SqlMigrations
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<UserEntity>()
-                .HasMany<SubmissionStatisticsEntity>()
+                .HasMany<SubmissionEntity>()
                 .WithOne(s => s.User)
                 .HasForeignKey(s => s.UserEmail)
                 .OnDelete(DeleteBehavior.NoAction);

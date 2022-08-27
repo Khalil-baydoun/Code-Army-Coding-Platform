@@ -4,7 +4,7 @@ namespace DataContracts.Submissions
 {
     public class GetSubmissionsResponse
     {
-        public List<SubmissionStatistics> Submissions { get; set; }
+        public List<Submission> Submissions { get; set; }
 
         public bool SubmissionsRemaining { get; set; }
     }

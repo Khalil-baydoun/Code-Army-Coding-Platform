@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using DataContracts.Statistics;
 using DataContracts.Submissions;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -15,20 +14,17 @@ namespace Webapi.JudgingQueue
         private readonly ServiceBusSender _sender;
         private readonly ServiceBusProcessor _processor;
         IOnlineJudgeService _judgingService;
-        IStatisticsStore _statStore;
-        IWaReportStore _waReportStore;
+        ISubmissionsStore _subStore;
         ISolutionService _solutionService;
 
         public ServiceBusSubmissionQueue(
             IOptions<ServiceBusSettings> options,
-            IStatisticsStore statStore,
+            ISubmissionsStore subStore,
             IOnlineJudgeService judgingService,
-            IWaReportStore waReportStore,
             ISolutionService solutionService)
         {
-            _statStore = statStore;
+            _subStore = subStore;
             _judgingService = judgingService;
-            _waReportStore = waReportStore;
             _solutionService = solutionService;
             _client = new ServiceBusClient(options.Value.ConnectionString);
             _sender = _client.CreateSender(options.Value.SubmissionQueueName);
@@ -40,13 +36,13 @@ namespace Webapi.JudgingQueue
 
         public async Task EnqueueSubmission(SubmissionRequest request)
         {
-            SubmissionStatistics? subStats = null;
+            Submission? sub = null;
 
             bool isretry = false;
 
             if (!request.IsSolution && string.IsNullOrEmpty(request.SubmissionId))
             {
-                subStats = new SubmissionStatistics
+                sub = new Submission
                 {
                     ProblemId = int.Parse(request.ProblemId),
                     SourceCode = request.SourceCode,
@@ -56,20 +52,20 @@ namespace Webapi.JudgingQueue
                     Verdict = (int)Verdict.InQueue
                 };
 
-                await _statStore.AddSubmission(subStats);
+                await _subStore.AddSubmission(sub);
             }
-            else if(!string.IsNullOrEmpty(request.SubmissionId))
+            else if (!string.IsNullOrEmpty(request.SubmissionId))
             {
-                subStats = await _statStore.GetSubmission(int.Parse(request.SubmissionId));
-                if(subStats !=null && subStats.Verdict != (int)Verdict.InQueue)
+                sub = await _subStore.GetSubmission(int.Parse(request.SubmissionId));
+                if (sub != null && sub.Verdict != (int)Verdict.InQueue)
                 {
                     // submission already processed, do nothing
                     return;
                 }
 
-                if(subStats == null)
+                if (sub == null)
                 {
-                    subStats = new SubmissionStatistics
+                    sub = new Submission
                     {
                         ProblemId = int.Parse(request.ProblemId),
                         SourceCode = request.SourceCode,
@@ -79,23 +75,23 @@ namespace Webapi.JudgingQueue
                         Verdict = (int)Verdict.InQueue
                     };
 
-                    await _statStore.AddSubmission(subStats);
+                    await _subStore.AddSubmission(sub);
                 }
 
-                subStats.IsRetried = true;
-                await _statStore.UpdateSubmission(subStats);
+                sub.IsRetried = true;
+                await _subStore.UpdateSubmission(sub);
                 isretry = true;
             }
 
             SubmissionQueueMessage queueMessage = new()
             {
                 Request = request,
-                SubmissionStatistics = subStats,
+                Submission = sub,
                 IsyRetry = isretry
             };
 
             var message = new ServiceBusMessage(JsonSerializer.Serialize(queueMessage));
-            message.MessageId = subStats?.Id.ToString()?? Guid.NewGuid().ToString();
+            message.MessageId = sub?.Id.ToString() ?? Guid.NewGuid().ToString();
             await _sender.SendMessageAsync(message);
         }
 
@@ -115,15 +111,17 @@ namespace Webapi.JudgingQueue
             }
             else
             {
-                var subStats = queueMessage.SubmissionStatistics;
-                //if (response.Verdict == Verdict.WrongAnswer)
-                //{
-                //    response.WaReport.SubmissionId = subStats.Id;
-                //    _waReportStore.AddReport(response.WaReport);
-                //}
+                var sub = queueMessage.Submission;
+                sub.Verdict = (int)response.Verdict;
+                sub.CompilerErrorMessage = response.CompilerErrorMessage;
+                sub.RuntimeErrorMessage = response.RuntimeErrorMessage;
+                sub.ActualOutput = response.ActualOutput;
+                sub.ExpectedOutput = response.ExpectedOutput;
+                sub.TestsPassed = response.TestsPassed;
+                sub.TotalTests = response.TotalTests;
+                sub.WrongTestInput = response.WrongTestInput;
 
-                subStats.Verdict = (int)response.Verdict;
-                await _statStore.UpdateSubmission(subStats);
+                await _subStore.UpdateSubmission(sub);
             }
 
             await args.CompleteMessageAsync(args.Message);

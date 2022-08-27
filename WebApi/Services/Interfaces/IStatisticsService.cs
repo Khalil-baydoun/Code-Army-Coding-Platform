@@ -10,13 +10,5 @@ namespace WebApi.Store.Interfaces
         CourseStatistics GetCourseStatistics(int courseId);
 
         ProblemStatistics GetProblemStatistics(int problemId);
-
-        Task AddSubmission(SubmissionStatistics sub);
-
-        GetSubmissionsResponse GetUserSubmissions(string userEmail, int offset, int limit);
-
-        Task UpdateSubmission(SubmissionStatistics sub);
-
-        Task<SubmissionStatistics?> GetSubmission(int submissionId);
     }
 }

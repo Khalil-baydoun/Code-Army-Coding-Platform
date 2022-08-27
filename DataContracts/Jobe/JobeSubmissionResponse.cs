@@ -11,5 +11,9 @@ namespace DataContracts.Jobe
         public int Outcome { get; set; }
 
         public List<string> Output { get; set; }
+
+        public string RuntimeErrorMessage { get; set; }
+
+        public string CompilerErrorMessage { get; set; }
     }
 }
