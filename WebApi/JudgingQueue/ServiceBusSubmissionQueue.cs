@@ -15,18 +15,18 @@ namespace Webapi.JudgingQueue
         private readonly ServiceBusSender _sender;
         private readonly ServiceBusProcessor _processor;
         IOnlineJudgeService _judgingService;
-        IStatisticsService _statService;
+        IStatisticsStore _statStore;
         IWaReportStore _waReportStore;
         ISolutionService _solutionService;
 
         public ServiceBusSubmissionQueue(
             IOptions<ServiceBusSettings> options,
-            IStatisticsService statService,
+            IStatisticsStore statStore,
             IOnlineJudgeService judgingService,
             IWaReportStore waReportStore,
             ISolutionService solutionService)
         {
-            _statService = statService;
+            _statStore = statStore;
             _judgingService = judgingService;
             _waReportStore = waReportStore;
             _solutionService = solutionService;
@@ -40,10 +40,11 @@ namespace Webapi.JudgingQueue
 
         public async Task EnqueueSubmission(SubmissionRequest request)
         {
-            request.SubmissionId = Guid.NewGuid().ToString();
+            SubmissionStatistics? subStats = null;
 
-            SubmissionStatistics subStats = null;
-            if (!request.IsSolution)
+            bool isretry = false;
+
+            if (!request.IsSolution && string.IsNullOrEmpty(request.SubmissionId))
             {
                 subStats = new SubmissionStatistics
                 {
@@ -55,18 +56,46 @@ namespace Webapi.JudgingQueue
                     Verdict = (int)Verdict.InQueue
                 };
 
-                await _statService.AddSubmission(subStats);
+                await _statStore.AddSubmission(subStats);
             }
+            else if(!string.IsNullOrEmpty(request.SubmissionId))
+            {
+                subStats = await _statStore.GetSubmission(int.Parse(request.SubmissionId));
+                if(subStats !=null && subStats.Verdict != (int)Verdict.InQueue)
+                {
+                    // submission already processed, do nothing
+                    return;
+                }
 
+                if(subStats == null)
+                {
+                    subStats = new SubmissionStatistics
+                    {
+                        ProblemId = int.Parse(request.ProblemId),
+                        SourceCode = request.SourceCode,
+                        ProgrammingLanguage = request.ProgLanguage,
+                        UserEmail = request.UserEmail,
+                        SubmittedAt = DateTime.Now,
+                        Verdict = (int)Verdict.InQueue
+                    };
+
+                    await _statStore.AddSubmission(subStats);
+                }
+
+                subStats.IsRetried = true;
+                await _statStore.UpdateSubmission(subStats);
+                isretry = true;
+            }
 
             SubmissionQueueMessage queueMessage = new()
             {
                 Request = request,
-                SubmissionStatistics = subStats
+                SubmissionStatistics = subStats,
+                IsyRetry = isretry
             };
 
             var message = new ServiceBusMessage(JsonSerializer.Serialize(queueMessage));
-            message.MessageId = request.SubmissionId;
+            message.MessageId = subStats?.Id.ToString()?? Guid.NewGuid().ToString();
             await _sender.SendMessageAsync(message);
         }
 
@@ -93,9 +122,8 @@ namespace Webapi.JudgingQueue
                 //    _waReportStore.AddReport(response.WaReport);
                 //}
 
-                subStats.SubmittedAt = DateTime.Now;
                 subStats.Verdict = (int)response.Verdict;
-                await _statService.UpdateSubmission(subStats);
+                await _statStore.UpdateSubmission(subStats);
             }
 
             await args.CompleteMessageAsync(args.Message);

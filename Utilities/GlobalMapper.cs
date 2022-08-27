@@ -140,7 +140,7 @@ public class GlobalMapper
 
         var problemSet = _mapper.Map<ProblemSet>(entity);
         problemSet.Id = entity.Id;
-        //if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');//TODO
+        if (entity.Prerequisites != null) problemSet.Prerequisites = entity.Prerequisites.Split(',');//TODO
         problemSet.Problems = entity.ProblemSetProblems.Select(x => ToProblem(x.Problem)).ToList();
         return problemSet;
     }

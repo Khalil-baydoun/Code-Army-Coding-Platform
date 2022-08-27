@@ -152,6 +152,7 @@ namespace WebApi.Store.Sql
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var entity = db.SubmissionStatistics.Where(ps => ps.Id == sub.Id).FirstOrDefault();
                 entity.Verdict = sub.Verdict;
+                entity.IsRetried = sub.IsRetried;
                 var success = await db.SaveChangesAsync() > 0;
                 if (!success)
                 {
@@ -172,6 +173,18 @@ namespace WebApi.Store.Sql
                     .Take(limit)
                     .Select(x => _mapper.ToSubmissionStatistics(x))
                     .ToList();
+            }
+        }
+
+        public async Task<SubmissionStatistics?> GetSubmission(int submissionId)
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                return await db.SubmissionStatistics
+                    .Where(x => x.Id == submissionId)
+                    .Select(x => _mapper.ToSubmissionStatistics(x))
+                    .FirstOrDefaultAsync();
             }
         }
     }

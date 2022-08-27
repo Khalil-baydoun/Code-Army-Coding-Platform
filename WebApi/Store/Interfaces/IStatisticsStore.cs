@@ -15,5 +15,7 @@ namespace WebApi.Store.Interfaces
         Task UpdateSubmission(SubmissionStatistics sub);
 
         List<SubmissionStatistics> GetSubmissionsPaged(string userEmail, int offset, int limit);
+
+        Task<SubmissionStatistics?> GetSubmission(int submissionId);
     }
 }

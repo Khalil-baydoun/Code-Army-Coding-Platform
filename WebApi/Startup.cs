@@ -42,7 +42,7 @@ namespace webapi
                 {
                     policy.AllowAnyHeader()
                         .AllowAnyMethod()
-                        .WithOrigins("http://localhost:3000", "https://aubcode.azurewebsites.net")
+                        .WithOrigins("http://localhost:3000", "https://codearmyplatform.azurewebsites.net")
                         .AllowCredentials();
                 });
             });

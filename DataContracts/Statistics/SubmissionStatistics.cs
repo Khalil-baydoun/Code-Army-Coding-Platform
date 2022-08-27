@@ -17,5 +17,7 @@ namespace DataContracts.Statistics
         public DateTime SubmittedAt { get; set; }
 
         public string ProgrammingLanguage { get; set; }
+
+        public bool IsRetried { get; set; }
     }
 }

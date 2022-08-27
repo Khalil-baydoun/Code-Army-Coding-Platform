@@ -16,5 +16,7 @@ namespace WebApi.Store.Interfaces
         GetSubmissionsResponse GetUserSubmissions(string userEmail, int offset, int limit);
 
         Task UpdateSubmission(SubmissionStatistics sub);
+
+        Task<SubmissionStatistics?> GetSubmission(int submissionId);
     }
 }
